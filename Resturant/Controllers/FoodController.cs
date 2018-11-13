@@ -1,0 +1,79 @@
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Resturant.Repository;
+using Resturant.Models;
+
+namespace Resturant.Controllers
+{
+    [Route("[controller]")]
+    [ApiController]
+    public class FoodController : ControllerBase
+    {
+        private readonly IFoodRepository _foodRepository;
+
+        public FoodController(IFoodRepository foodRepository)
+        {
+            _foodRepository = foodRepository;
+        }
+
+        // GET api/Food
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var food = _foodRepository.Query();
+
+            return Ok(food);
+        }
+
+        // GET api/Food
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] int id)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var food = _foodRepository.GetAsync(id.ToString());
+
+            if (food != null)
+            {
+                return Ok(food);
+            }
+            else
+                return BadRequest();
+        }
+
+        // POST api/Food
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] Food value)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            await _foodRepository.InsertAsync(value);
+
+            return Created($"food/{value.FoodId}", value);
+        }
+
+        // PUT api/Food
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put([FromBody] Food value, [FromRoute] int id)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            if (id != value.FoodId) return BadRequest();
+
+            await _foodRepository.UpdateAsync(value);
+
+            return Ok(value);
+        }
+
+        // DELETE api/Food
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var food = _foodRepository.DeleteAsync(id.ToString());
+
+            return Ok(food);
+        }
+
+    }
+}
