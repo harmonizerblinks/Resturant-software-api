@@ -11,12 +11,11 @@ namespace Resturant.Models
         [Key]
         public int TellerId { get; set; }
         [Required]
-        public int ItemId { get; set; }
-        [Required]
         public int NominalId { get; set; }
         [Required]
         public string Id { get; set; }
 
-        public AppUser User { get; set; }
+        public AppUser AppUser { get; set; }
+        public Nominal Nominal { get; set; }
     }
 }

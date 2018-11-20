@@ -14,6 +14,7 @@ namespace Resturant.Models
         [Required]
         public int FoodId { get; set; }
         [Required]
+        [DataType(DataType.Currency)]
         public decimal Amount { get; set; }
         [Required]
         public int Quantity { get; set; }

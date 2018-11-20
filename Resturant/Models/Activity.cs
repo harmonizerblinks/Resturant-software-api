@@ -13,6 +13,8 @@ namespace Resturant.Models
 
         public string Action { get; set; }
 
+        public string Claim { get; set; }
+
         public string Details { get; set; }
 
         public int UserId { get; set; }

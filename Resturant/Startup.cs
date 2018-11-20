@@ -24,6 +24,13 @@ using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json.Serialization;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using Newtonsoft.Json;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
+using Serilog.Formatting.Json;
+using Microsoft.AspNetCore.Http;
+using Resturant.Services;
+using Hangfire;
 
 namespace Resturant
 {
@@ -32,6 +39,17 @@ namespace Resturant
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            var Date = DateTime.Now.ToString(@"yyyy-MM-dd");
+            Log.Logger = new LoggerConfiguration()
+              .Enrich.FromLogContext()
+              .WriteTo.File(new JsonFormatter(), $"Files/Logs/ken-{Date}.json")
+              .CreateLogger();
+
+            var log = new LoggerConfiguration()
+                .WriteTo.MSSqlServer(
+                    connectionString: Configuration.GetConnectionString("DefaultConnection"),
+                    tableName: "Logs", columnOptions:  new ColumnOptions(),
+                    autoCreateSqlTable: true ).CreateLogger();
         }
 
         public IConfiguration Configuration { get; }
@@ -41,6 +59,8 @@ namespace Resturant
         {
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddTransient<IActivityRepository, ActivityRepository>();
             services.AddTransient<ICompanyRepository, CompanyRepository>();
             services.AddTransient<IDiscountRepository, DiscountRepository>();
@@ -57,6 +77,8 @@ namespace Resturant
             services.AddTransient<IStockRepository, StockRepository>();
             services.AddTransient<ITellerRepository, TellerRepository>();
             services.AddTransient<ITransactionRepository, TransactionRepository>();
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             //Add Identity and Jwt
             services.AddIdentity<AppUser, IdentityRole>(option =>
@@ -84,14 +106,19 @@ namespace Resturant
                 o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 o.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            } /*Uncomment this if you don't want to use JWT for all of your api*/)
+            })
+                .AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
+                    googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+                })
                 .AddJwtBearer(cfg =>
                 {
                     cfg.RequireHttpsMetadata = false;
                     cfg.SaveToken = true;
                     cfg.TokenValidationParameters = new TokenValidationParameters()
                     {
-                        ValidIssuer = "http://localhost:53720",
+                        ValidIssuer = "http://www.acyst.tech",
                         ValidAudience = "http://localhost:53720",
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("qwertyuiopasdfghjklzxcvbnm123456")),
                     };
@@ -109,18 +136,6 @@ namespace Resturant
                         .SetPreflightMaxAge(TimeSpan.FromSeconds(20000));
                 });
             });
-            services.AddMvc(o =>
-            {
-                //var policy = new AuthorizationPolicyBuilder()
-                //    .RequireAuthenticatedUser()
-                //    .Build();
-                //o.Filters.Add(new AuthorizeFilter(policy));
-            }).AddJsonOptions(options =>
-            {
-                //options.SerializerSettings.ContractResolver = new DefaultContractResolver();
-                //options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("Admin", policy => policy.RequireClaim("CanAssignRoles", "true"));
@@ -129,6 +144,7 @@ namespace Resturant
             //services.AddAuthorization(options => options.AddPolicy("Admin", policy => policy.RequireClaim("CanAssignRoles", "true")));
             services.AddOptions();
 
+            services.AddLogging();
             services.AddSwaggerGen(c =>
             {
                 //c.SwaggerDoc("v1", new Info { Title = "Resturant Api", Version = "v1" });
@@ -146,11 +162,32 @@ namespace Resturant
                     }
                 });
             });
-            
+            services.AddSignalR();
+            services.AddMvc(o =>
+            {
+                //var policy = new AuthorizationPolicyBuilder()
+                //    .RequireAuthenticatedUser()
+                //    .Build();
+                //o.Filters.Add(new AuthorizeFilter(policy));
+            }).AddJsonOptions(options =>
+            {
+                //options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+                options.SerializerSettings.ContractResolver = new LowercaseContractResolver();
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+        }
+
+        public class LowercaseContractResolver : DefaultContractResolver
+        {
+            protected override string ResolvePropertyName(string propertyName)
+            {
+                return propertyName.ToLower();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -163,6 +200,11 @@ namespace Resturant
                 app.UseExceptionHandler();
                 //app.UseHsts();
             }
+            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            loggerFactory.AddDebug(LogLevel.Trace);
+
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
             //Add our new middleware to the pipeline
             app.UseMiddleware<LoggingMiddleware>();
             app.UseCors("AllowAny");
@@ -176,7 +218,10 @@ namespace Resturant
             });
             app.UseAuthentication();
             app.UseStatusCodePages();
-
+            app.UseSignalR(o =>
+            {
+                o.MapHub<OrderHub>("/Orders");
+            });
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

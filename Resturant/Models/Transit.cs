@@ -6,21 +6,17 @@ using System.Threading.Tasks;
 
 namespace Resturant.Models
 {
-    public class Food : BaseModel
+    public class Transit : BaseModel
     {
         [Key]
-        public int FoodId { get; set; }
+        public int TransitId { get; set; }
         public string Code { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
-        public string Image { get; set; }
+        public string Method { get; set; }
         [Required]
-        public string Description { get; set; }
-        [Required]
-        [DataType(DataType.Currency)]
-        public decimal Price { get; set; }
-        [Required]
-        public int Discount { get; set; }
+        public int NominalId { get; set; }
+        public Nominal Nominal { get; set; }
     }
 }

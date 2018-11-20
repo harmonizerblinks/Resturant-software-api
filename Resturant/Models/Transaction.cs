@@ -24,5 +24,8 @@ namespace Resturant.Models
         public int TellerId { get; set; }
         [Required]
         public string Reference { get; set; }
+
+        public Nominal Nominal { get; set; }
+        public Teller Teller { get; set; }
     }
 }

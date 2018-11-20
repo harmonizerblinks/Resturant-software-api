@@ -16,8 +16,10 @@ namespace Resturant.Models
         [Required]
         public string Description { get; set; }
         [Required]
-        public string Price { get; set; }
+        [DataType(DataType.Currency)]
+        public decimal Price { get; set; }
         [Required]
-        public string SalePrice { get; set; }
+        [DataType(DataType.Currency)]
+        public decimal SalePrice { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Resturant
 {
@@ -15,10 +16,13 @@ namespace Resturant
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args).Build().Run();
+            // BuildWebHost(args).Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                //.UseSerilog()
+                //.UseKestrel()
                 .UseStartup<Startup>();
     }
 }

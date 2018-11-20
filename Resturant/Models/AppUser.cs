@@ -9,14 +9,13 @@ namespace Resturant.Models
 {
     public class AppUser : IdentityUser
     {
-        [Key]
-        public int UserId { get; set; }
-        public int EmployeeId { get; set; }
+        public int? EmployeeId { get; set; }
         public string UserType { get; set; }
-        public bool IsLoggedin { get; set; }
-        public DateTime JoinDate { get; set; }
+        public bool IsLoggedIn { get; set; }
         public DateTime Login { get; set; }
         public DateTime LogOut { get; set; }
+        public string MUserId { get; set; }
+        public DateTime? MDate { get; set; }
 
         public Employee Employee { get; set; }
     }

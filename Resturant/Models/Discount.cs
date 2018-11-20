@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Resturant.Models
 {
@@ -17,5 +14,7 @@ namespace Resturant.Models
         [Required]
         public int Percent { get; set; }
         public int LocationId { get; set; }
+
+        public Location Location { get; set; }
     }
 }

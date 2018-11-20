@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Resturant.Models
 {
@@ -16,6 +13,7 @@ namespace Resturant.Models
         public string Code { get; set; }
         [Required]
         public string Mobile { get; set; }
+        //public DateTime Expiry { get; set; }
         [Required]
         public string Postal { get; set; }
         [Required]

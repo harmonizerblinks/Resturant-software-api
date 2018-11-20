@@ -14,5 +14,11 @@ namespace Resturant.Exceptions
         {
             return builder.UseMiddleware<LoggingMiddleware>();
         }
+
+
+        //public static IApplicationBuilder RequestLoggingMiddleware(this IApplicationBuilder builder)
+        //{
+        //    return builder.UseMiddleware<RequestLoggingMiddleware>();
+        //}
     }
 }

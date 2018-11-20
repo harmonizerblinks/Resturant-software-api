@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Resturant.Models
 {
@@ -15,6 +13,7 @@ namespace Resturant.Models
         [Required]
         public string Image { get; set; }
         [Required]
+        [DataType(DataType.PhoneNumber)]
         public string Mobile { get; set; }
         [Required]
         [DataType(DataType.EmailAddress)]
@@ -22,10 +21,12 @@ namespace Resturant.Models
         [Required]
         public string Position { get; set; }
         [Required]
+        [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
         [Required]
         public string Nationality { get; set; }
         [Required]
+        [DataType(DataType.MultilineText)]
         public string Address { get; set; }
     }
 }
