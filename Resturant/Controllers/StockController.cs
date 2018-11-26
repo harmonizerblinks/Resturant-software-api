@@ -60,7 +60,7 @@ namespace Resturant.Controllers
                     u => new StockLog()
                     {
                         StockId = u.StockId, Name = u.Item.Name, Date = u.Date,
-                        Price = u.Quantity * u.Item.Price, Quantity = u.Quantity,
+                        Price = u.Quantity * u.Item.Price, Quantity = u.Quantity, ItemId = u.ItemId,
                         UserId = _appuserRepository.Query().Where(i => i.Id == u.UserId).Select(n => n.UserName).FirstOrDefault()
                     }).OrderByDescending(o => o.Date).ToList();
 
@@ -81,7 +81,7 @@ namespace Resturant.Controllers
             var log = _stocklogRepository.GetAll().Select(
                     u => new StockLog()
                     {
-                        StockId = u.StockId, Name = u.Item.Name, Date = u.Date,
+                        StockId = u.StockId, Name = u.Item.Name, Date = u.Date, ItemId = u.ItemId,
                         Price = u.Quantity * u.Item.Price, Quantity = u.Quantity,
                         UserId = _appuserRepository.Query().Where(i => i.Id == u.UserId).Select(n => n.UserName.ToLower()).FirstOrDefault()
                     }).OrderByDescending(o => o.Date).ToList();

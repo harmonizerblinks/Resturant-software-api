@@ -79,6 +79,7 @@ namespace Resturant
             services.AddTransient<IStockLogRepository, StockLogRepository>();
             services.AddTransient<ITellerRepository, TellerRepository>();
             services.AddTransient<ITransactionRepository, TransactionRepository>();
+            services.AddTransient<IAppUserRepository, AppUserRepository>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
