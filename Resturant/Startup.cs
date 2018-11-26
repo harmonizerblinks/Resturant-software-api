@@ -74,7 +74,9 @@ namespace Resturant
             services.AddTransient<ISalesRepository, SalesRepository>();
             services.AddTransient<ISequenceRepository, SequenceRepository>();
             services.AddTransient<ISmsApiRepository, SmsApiRepository>();
+            services.AddTransient<ISmsRepository, SmsRepository>();
             services.AddTransient<IStockRepository, StockRepository>();
+            services.AddTransient<IStockLogRepository, StockLogRepository>();
             services.AddTransient<ITellerRepository, TellerRepository>();
             services.AddTransient<ITransactionRepository, TransactionRepository>();
             services.AddTransient<IEmailSender, EmailSender>();
@@ -163,6 +165,7 @@ namespace Resturant
                 });
             });
             services.AddSignalR();
+            
             services.AddMvc(o =>
             {
                 //var policy = new AuthorizationPolicyBuilder()
@@ -203,10 +206,11 @@ namespace Resturant
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug(LogLevel.Trace);
 
-            app.UseHangfireServer();
-            app.UseHangfireDashboard();
+            //app.UseHttpStatusCodeExceptionMiddleware();
+            //app.UseHangfireServer();
+            //app.UseHangfireDashboard();
             //Add our new middleware to the pipeline
-            app.UseMiddleware<LoggingMiddleware>();
+            //app.UseMiddleware<LoggingMiddleware>();
             app.UseCors("AllowAny");
             app.UseDatabaseErrorPage();
             app.UseStaticFiles();
@@ -217,6 +221,7 @@ namespace Resturant
                 RequestPath = "/Files"
             });
             app.UseAuthentication();
+            //app.UseSerilog();
             app.UseStatusCodePages();
             app.UseSignalR(o =>
             {

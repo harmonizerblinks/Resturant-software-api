@@ -16,25 +16,26 @@ namespace Resturant.Services
 {
     public class SequenceCode
     {
-        // private readonly AppDbContext _context;
-        private readonly ISequenceRepository _sequenceRepository;
-        private readonly ISmsRepository _smsRepository;
-        private readonly ISmsApiRepository _smsapiRepository;
+        private readonly AppDbContext _context;
+        //private readonly ISequenceRepository _sequenceRepository;
+        //private readonly ISmsRepository _smsRepository;
+        //private readonly ISmsApiRepository _smsapiRepository;
         public IHubContext<OrderHub> _order;
 
-        //private SequenceCode(IHubContext<OrderHub> order, ISequenceRepository sequenceRepository,
-        //    ISmsApiRepository smsapiRepository, ISmsRepository smsRepository)
-        //{
-        //    _sequenceRepository = sequenceRepository;
-        //    _smsapiRepository = smsapiRepository;
-        //    _smsRepository = smsRepository;
-        //    _order = order;
-        //}
+        private SequenceCode(AppDbContext context /*, IHubContext<OrderHub> order /*ISequenceRepository sequenceRepository,
+            ISmsApiRepository smsapiRepository, ISmsRepository smsRepository*/ )
+        {
+            //_sequenceRepository = sequenceRepository;
+            //_smsapiRepository = smsapiRepository;
+            //_smsRepository = smsRepository;
+            //_order = order;
+            _context = context;
+        }
 
         public async Task<string> GetCode(string type)
         {
-            //var sequence = await _context.Sequence.FirstOrDefaultAsync(a => a.Name.ToLower() == type.ToLower());
-            var sequence = await _sequenceRepository.Query().FirstOrDefaultAsync(a => a.Name.ToLower() == type.ToLower());
+            var sequence = await _context.Sequence.FirstOrDefaultAsync(a => a.Name.ToLower() == type.ToLower());
+            //var sequence = await _sequenceRepository.Query().FirstOrDefaultAsync(a => a.Name.ToLower() == type.ToLower());
 
             if (sequence != null)
             {
@@ -47,9 +48,9 @@ namespace Resturant.Services
                 string code = sequence.Prefix + number;
 
                 sequence.Counter += 1;
-                await _sequenceRepository.UpdateAsync(sequence);
-                //_context.Entry(sequence).State = EntityState.Modified;
-                //await _context.SaveChangesAsync();
+                //await _sequenceRepository.UpdateAsync(sequence);
+                _context.Entry(sequence).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
 
                 return code;
             }
@@ -58,17 +59,17 @@ namespace Resturant.Services
 
         public async Task<string> Sms(Order order)
         {
-            //var config = _context.SmsApi.LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
-            var config =_smsapiRepository.Query().LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
+            var config = _context.SmsApi.LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
+            //var config =_smsapiRepository.Query().LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
             if (config == null)
             {
                 return null;
             }
             else
             {
-                Sms sms = new Sms();
+                var sms = new Sms();
                 sms.UserId = order.UserId; sms.Date = DateTime.UtcNow; sms.Mobile = order.Mobile;
-                sms.Message = $"You are Welcome to {config.Name}, your Member Number is {order.OrderNo}. We are Glad {order.FullName} to serve you.";
+                sms.Message = $"You are Welcome to {config.Name}, your Order Number is {order.OrderNo}. We are Glad {order.FullName} to serve you.";
 
                 try
                 {
@@ -80,7 +81,12 @@ namespace Resturant.Services
                     var json = await httpClient.GetStringAsync(sb.ToString());
                     var smsresponse = JsonConvert.DeserializeObject<SmsResponse>(json);
                     sms.Code = smsresponse.Code; sms.Response = smsresponse.Message;
-                    await _smsRepository.InsertAsync(sms);
+                    //await _smsRepository.InsertAsync(sms);
+                    _context.Sms.Add(sms);
+                    await _context.SaveChangesAsync();
+
+                    await _order.Clients.All.SendAsync("order", order);
+                    RefreshOrder();
 
                     return smsresponse.Message;
                 }
@@ -94,7 +100,7 @@ namespace Resturant.Services
         public void RefreshOrder()
         {
 
-            _order.Clients.All.SendAsync("Send", "Hello From Hanggfire");
+            _order.Clients.All.SendAsync("Send", "Hello From Hangfire");
 
             //await Clients.All.SendAsync("Send", message);
         }

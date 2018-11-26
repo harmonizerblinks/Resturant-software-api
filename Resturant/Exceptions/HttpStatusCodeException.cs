@@ -15,11 +15,11 @@ namespace Resturant.Exceptions
             StatusCode = statusCode;
         }
 
-        public HttpStatusCodeException(int statusCode, Exception inner) : this(statusCode, inner.ToString())
+        public HttpStatusCodeException(int statusCode, Exception inner) : this(statusCode)
         {
         }
 
-        public HttpStatusCodeException(int statusCode, JObject errorObject) : this(statusCode, errorObject.ToString())
+        public HttpStatusCodeException(int statusCode, JObject errorObject) : this(statusCode)
         {
             ContentType = @"application/json";
         }

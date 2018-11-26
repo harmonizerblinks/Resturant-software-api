@@ -10,9 +10,9 @@ namespace Resturant.Repository
     {
         protected AppDbContext _dbContext { get; set; }
 
-        public async Task<T> GetAsync(string id)
+        public async Task<T> GetAsync(int id)
         {
-            return await _dbContext.FindAsync<T>(id);
+            return await _dbContext.FindAsync<T>(id); //.Find<T>(id);  //
         }
 
         public IQueryable<T> Query()
@@ -44,10 +44,10 @@ namespace Resturant.Repository
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<T> DeleteAsync(string id)
+        public async Task<T> DeleteAsync(int id)
         {
             var value = _dbContext.FindAsync<T>(id);
-            _dbContext.Remove(value);
+            _dbContext.Remove(value.Result);
             await _dbContext.SaveChangesAsync();
             return await value;
         }

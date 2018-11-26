@@ -21,6 +21,7 @@ using Resturant.Repository;
 
 namespace Resturant.Controllers
 {
+    [Produces("application/json")]
     [Route("[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -29,11 +30,13 @@ namespace Resturant.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IConfiguration _configuration;
         // private readonly AppDbContext _context;
+        private readonly HttpContext context;
         private readonly IEmailSender _emailSender;
         private readonly ICompanyRepository _companyRepository;
+        private readonly IEmployeeRepository _employeeRepository;
 
         public AuthController(UserManager<AppUser> usrMgr, SignInManager<AppUser> signinMgr, IConfiguration configuration
-            /* AppDbContext context*/, IEmailSender emailSender, ICompanyRepository companyRepository)
+            /* AppDbContext context*/, IEmailSender emailSender, ICompanyRepository companyRepository, IEmployeeRepository employeeRepository)
         {
             _userManager = usrMgr;
             _signInManager = signinMgr;
@@ -41,6 +44,7 @@ namespace Resturant.Controllers
             //_context = context;
             _emailSender = emailSender;
             _companyRepository = companyRepository;
+            _employeeRepository = employeeRepository;
         }
 
         [HttpPost()]
@@ -64,15 +68,23 @@ namespace Resturant.Controllers
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("qwertyuiopasdfghjklzxcvbnm1234567890"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var name = user.Employee.FullName; var image = user.Employee.Image;
-            if (name == null) name = "Acyst Tech"; image = "logo.png";
+            
+            var com = _companyRepository.Query().LastOrDefault();
+            var name = "Acyst Tech"; var image = "logo.png"; var company = "Acyst Technology Company";
+            if (user.EmployeeId != null)
+            {
+                var emp = _employeeRepository.Query().FirstOrDefault(e => e.EmployeeId == user.EmployeeId);
+                if (emp != null) name = emp.FullName; image = emp.Image;
+            }
+            if (com != null) company = com.Name;
 
             userClaims.Add(new Claim("Id", user.Id));
             userClaims.Add(new Claim("FullName", name));
+            userClaims.Add(new Claim("Company", company));
             userClaims.Add(new Claim("Image", image));
             userClaims.Add(new Claim("Mobile", user.PhoneNumber));
             userClaims.Add(new Claim("Email", user.Email));
-            userClaims.Add(new Claim("UserType", user.UserType.ToLower()));
+            userClaims.Add(new Claim("UserType", user.UserType));
             userClaims.Add(new Claim("LoginTime", DateTime.Now.ToString()));
 
             var token = new JwtSecurityToken(
@@ -87,6 +99,7 @@ namespace Resturant.Controllers
             await _userManager.UpdateAsync(user);
             var auth = new JwtSecurityTokenHandler().WriteToken(token);
             await _userManager.SetAuthenticationTokenAsync(user, "Server", user.UserName, auth);
+            //var tok = await _userManager.CreateSecurityTokenAsync(user);
             
             //await _signInManager.CanSignInAsync(user);
 
@@ -126,8 +139,8 @@ namespace Resturant.Controllers
                         Id = u.Id, Email = u.Email, Mobile = u.PhoneNumber, Username = u.UserName, Fullname = u.Employee.FullName,
                         Login = u.Login, LogOut = u.LogOut, IsLoggedIn = u.IsLoggedIn, UserType = u.UserType,
                         EmployeeId = u.EmployeeId, MUserId = u.MUserId, MDate = u.MDate
-                    }).OrderByDescending(o => o.Login).ToList();
-            RecurringJob.AddOrUpdate(() => Console.WriteLine("Transparent!"), Cron.Minutely);
+                    }).OrderByDescending(o => o.Login).ToListAsync();
+            //RecurringJob.AddOrUpdate("Adding Services",() => Console.WriteLine("Transparent!"), Cron.Hourly);
             return Ok(users);
         }
 
@@ -145,7 +158,7 @@ namespace Resturant.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var appuser = _userManager.Users.FirstOrDefault(u => u.Id == id);
-            if (appuser != null) return NotFound($"User Doesn't Exist with id {id} in Database ");
+            if (appuser == null) return NotFound($"User Doesn't Exist with id {id} in Database ");
 
             appuser.Email = user.Email; appuser.PhoneNumber = user.Mobile; appuser.UserName = user.Username;
             appuser.UserType = user.UserType; appuser.EmployeeId = user.EmployeeId;
@@ -171,10 +184,16 @@ namespace Resturant.Controllers
         }
 
 
-        [HttpPost("Logout/{username}")]
+        [HttpGet("Logout/{username}")]
         public async Task<IActionResult> Logout([FromRoute]string username)
         {
             if (!ModelState.IsValid) return BadRequest();
+            
+            //if (context.User.Identity.IsAuthenticated)
+            //{
+            //    var response = context.User.Claims;
+            //    Console.WriteLine(response);
+            //}
             var user = await _userManager.FindByNameAsync(username);
             user.Login = DateTime.UtcNow;
             user.IsLoggedIn = false;

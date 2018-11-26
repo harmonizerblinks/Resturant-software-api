@@ -8,45 +8,43 @@ using Resturant.Repository;
 using Resturant.Services;
 using Hangfire;
 using Microsoft.AspNetCore.SignalR;
+using Resturant.Models;
+using System.Collections;
 
 namespace Resturant.Controllers
 {
+    [Produces("application/json")]
     [Route("[controller]")]
     [ApiController]
     public class ServicesController : ControllerBase
     {
-        private readonly IOrderRepository _orderRepository;
+        private IOrderRepository _orderRepository;
         private IHubContext<OrderHub> _order;
-        private SequenceCode _get;
+        /// private SequenceCode _get;
 
-        public ServicesController(IOrderRepository orderRepository, IHubContext<OrderHub> order, SequenceCode get)
-        {
-            _orderRepository = orderRepository;
-            _order = order;
-            _get = get;
-        }
+        //public ServicesController(IOrderRepository orderRepository, IHubContext<OrderHub> order, SequenceCode get)
+        //{
+        //    _orderRepository = orderRepository;
+        //    _order = order;
+        //    _get = get;
+        //}
 
-        // GET api/Order
+        // GET api/Services
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            //var order = _orderRepository.Query();
-
-            RecurringJob.AddOrUpdate(() => _get.RefreshOrder(), Cron.Minutely);
-            RecurringJob.AddOrUpdate(() => RefreshOrder(), Cron.Daily);
-            BackgroundJob.Schedule(() => Console.WriteLine("Reliable!"), TimeSpan.FromDays(7));
-            //BackgroundJob.Enqueue(() => Refresh());
+            var order = _orderRepository.Query();
+            RecurringJob.AddOrUpdate("Updating Order Screen", () => RefreshOrderAsync("hello from harmony"), Cron.Minutely);
+            //RecurringJob.AddOrUpdate<OrderHub>("Boardcast Message", x => x.Send("Hello From Hangfire"), Cron.Minutely);
 
             return Ok( new { Status = "Ok" });
         }
-
-        [NonAction]
-        public void RefreshOrder()
+        
+        private void RefreshOrderAsync(string message)
         {
-
             _order.Clients.All.SendAsync("Send", "Hello From Hangfire");
 
-            //await Clients.All.SendAsync("Send", message);
+            _order.Clients.All.SendAsync("Send", message);
         }
 
         //[NonAction]

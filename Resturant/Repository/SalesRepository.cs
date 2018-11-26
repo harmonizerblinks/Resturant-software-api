@@ -1,4 +1,6 @@
-﻿using Resturant.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Resturant.Models;
+using System.Linq;
 
 namespace Resturant.Repository
 {
@@ -7,6 +9,11 @@ namespace Resturant.Repository
         public SalesRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public IQueryable<Sales> GetAll()
+        {
+            return _dbContext.Sales.Include(x => x.Item).AsQueryable();
         }
     }
 }

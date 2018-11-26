@@ -6,6 +6,7 @@ using Resturant.Models;
 
 namespace Resturant.Controllers
 {
+    [Produces("application/json")]
     [Route("[controller]")]
     [ApiController]
     public class EmployeeController : ControllerBase
@@ -31,11 +32,11 @@ namespace Resturant.Controllers
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var employee = _employeeRepository.GetAsync(id.ToString());
+            var employee = _employeeRepository.GetAsync(id);
 
             if (employee != null)
             {
-                return Ok(employee);
+                return Ok(employee.Result);
             }
             else
                 return BadRequest();
@@ -70,9 +71,9 @@ namespace Resturant.Controllers
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var employee = _employeeRepository.DeleteAsync(id.ToString());
+            var employee = _employeeRepository.DeleteAsync(id);
 
-            return Ok(employee);
+            return Ok(employee.Result);
         }
 
     }

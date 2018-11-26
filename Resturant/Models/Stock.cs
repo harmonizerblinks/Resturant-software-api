@@ -13,8 +13,10 @@ namespace Resturant.Models
         [Required]
         public int ItemId { get; set; }
         [Required]
-        public string Quantity { get; set; }
+        public int Quantity { get; set; }
 
         public Item Item { get; set; }
+
+        public IList<StockLog> Logs { get; set; }
     }
 }

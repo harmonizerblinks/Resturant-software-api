@@ -9,11 +9,10 @@ namespace Resturant.Exceptions
             return builder.UseMiddleware<HttpStatusCodeExceptionMiddleware>();
         }
 
-
-        public static IApplicationBuilder UseLoggingMiddleware(this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<LoggingMiddleware>();
-        }
+        //public static IApplicationBuilder UseLoggingMiddleware(this IApplicationBuilder builder)
+        //{
+        //    return builder.UseMiddleware<LoggingMiddleware>();
+        //}
 
 
         //public static IApplicationBuilder RequestLoggingMiddleware(this IApplicationBuilder builder)

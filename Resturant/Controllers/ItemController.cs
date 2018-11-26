@@ -6,6 +6,7 @@ using Resturant.Models;
 
 namespace Resturant.Controllers
 {
+    [Produces("application/json")]
     [Route("[controller]")]
     [ApiController]
     public class ItemController : ControllerBase
@@ -31,9 +32,14 @@ namespace Resturant.Controllers
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var item = _itemRepository.GetAsync(id.ToString());
+            var item = _itemRepository.GetAsync(id);
 
-            return Ok(item);
+            if (item != null)
+            {
+                return Ok(item.Result);
+            }
+            else
+                return BadRequest();
         }
 
         // POST api/Item
@@ -65,9 +71,9 @@ namespace Resturant.Controllers
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var item = _itemRepository.DeleteAsync(id.ToString());
+            var item = _itemRepository.DeleteAsync(id);
 
-            return Ok(item);
+            return Ok(item.Result);
         }
     }
 }

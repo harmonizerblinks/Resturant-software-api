@@ -6,7 +6,7 @@ namespace Resturant.Repository
 {
     public interface IGenericRepository<T>
     {
-        Task<T> GetAsync(string id);
+        Task<T> GetAsync(int id);
 
         IQueryable<T> Query();
 
@@ -16,7 +16,7 @@ namespace Resturant.Repository
         Task UpdateAsync(T entity);
         Task UpdateRangeAsync(IEnumerable<T> entities);
 
-        Task<T> DeleteAsync(string id);
+        Task<T> DeleteAsync(int id);
         Task DeleteRangeAsync(IEnumerable<T> entities);
     }
 }

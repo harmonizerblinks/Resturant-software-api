@@ -15,7 +15,7 @@ namespace Resturant.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.1-rtm-30846")
+                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -478,12 +478,16 @@ namespace Resturant.Migrations
 
                     b.Property<decimal>("Price");
 
+                    b.Property<string>("Source");
+
                     b.Property<string>("Status")
                         .IsRequired();
 
                     b.Property<decimal>("Total");
 
                     b.Property<string>("UserId");
+
+                    b.Property<decimal>("Vat");
 
                     b.HasKey("OrderId");
 
@@ -534,6 +538,10 @@ namespace Resturant.Migrations
                     b.Property<decimal>("Price");
 
                     b.Property<int>("Quantity");
+
+                    b.Property<string>("Reference");
+
+                    b.Property<string>("Type");
 
                     b.Property<string>("UserId");
 
@@ -655,8 +663,7 @@ namespace Resturant.Migrations
 
                     b.Property<string>("MUserId");
 
-                    b.Property<string>("Quantity")
-                        .IsRequired();
+                    b.Property<int>("Quantity");
 
                     b.Property<string>("UserId");
 
@@ -677,8 +684,7 @@ namespace Resturant.Migrations
 
                     b.Property<int>("ItemId");
 
-                    b.Property<string>("Quantity")
-                        .IsRequired();
+                    b.Property<int>("Quantity");
 
                     b.Property<int>("StockId");
 
@@ -741,13 +747,15 @@ namespace Resturant.Migrations
 
                     b.Property<int>("NominalId");
 
+                    b.Property<int?>("OrderId");
+
                     b.Property<string>("Reference")
                         .IsRequired();
 
                     b.Property<string>("Source")
                         .IsRequired();
 
-                    b.Property<int>("TellerId");
+                    b.Property<int?>("TellerId");
 
                     b.Property<string>("TransCode");
 
@@ -759,6 +767,8 @@ namespace Resturant.Migrations
                     b.HasKey("TransactionId");
 
                     b.HasIndex("NominalId");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("TellerId");
 
@@ -872,7 +882,7 @@ namespace Resturant.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Resturant.Models.Order", "Order")
-                        .WithMany()
+                        .WithMany("Orderlist")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -896,12 +906,12 @@ namespace Resturant.Migrations
             modelBuilder.Entity("Resturant.Models.StockLog", b =>
                 {
                     b.HasOne("Resturant.Models.Item", "Item")
-                        .WithMany()
+                        .WithMany("Logs")
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Resturant.Models.Stock", "Stock")
-                        .WithMany()
+                        .WithMany("Logs")
                         .HasForeignKey("StockId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -926,10 +936,13 @@ namespace Resturant.Migrations
                         .HasForeignKey("NominalId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("Resturant.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId");
+
                     b.HasOne("Resturant.Models.Teller", "Teller")
                         .WithMany()
-                        .HasForeignKey("TellerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("TellerId");
                 });
 
             modelBuilder.Entity("Resturant.Models.Transit", b =>

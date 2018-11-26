@@ -6,6 +6,7 @@ using Resturant.Repository;
 
 namespace Resturant.Controllers
 {
+    [Produces("application/json")]
     [Route("[controller]")]
     [ApiController]
     public class DiscountController : ControllerBase
@@ -31,11 +32,11 @@ namespace Resturant.Controllers
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var discount = _discountRepository.GetAsync(id.ToString());
+            var discount = _discountRepository.GetAsync(id);
 
             if (discount != null)
             {
-                return Ok(discount);
+                return Ok(discount.Result);
             }
             else
                 return BadRequest();
@@ -69,9 +70,9 @@ namespace Resturant.Controllers
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var discount = _discountRepository.DeleteAsync(id.ToString());
+            var discount = _discountRepository.DeleteAsync(id);
 
-            return Ok(discount);
+            return Ok(discount.Result);
         }
 
     }

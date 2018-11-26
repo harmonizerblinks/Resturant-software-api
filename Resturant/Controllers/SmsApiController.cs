@@ -6,6 +6,7 @@ using Resturant.Models;
 
 namespace Resturant.Controllers
 {
+    [Produces("application/json")]
     [Route("[controller]")]
     [ApiController]
     public class SmsApiController : ControllerBase
@@ -31,11 +32,11 @@ namespace Resturant.Controllers
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var smsapi = _smsapiRepository.GetAsync(id.ToString());
+            var smsapi = _smsapiRepository.GetAsync(id);
 
             if (smsapi != null)
             {
-                return Ok(smsapi);
+                return Ok(smsapi.Result);
             }
             else
                 return BadRequest();
@@ -70,9 +71,9 @@ namespace Resturant.Controllers
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var smsapi = _smsapiRepository.DeleteAsync(id.ToString());
+            var smsapi = _smsapiRepository.DeleteAsync(id);
 
-            return Ok(smsapi);
+            return Ok(smsapi.Result);
         }
     }
 }

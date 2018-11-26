@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Resturant.Controllers
 {
+    [Produces("application/json")]
     [Route("[controller]")]
     [ApiController]
     public class UploadController : ControllerBase
@@ -55,6 +56,27 @@ namespace Resturant.Controllers
             {
                 return BadRequest("Upload Failed: " + ex.Message);
             }
+        }
+
+        [HttpPost("Image/{filetype}")]
+        public async Task<IActionResult> UploadFile([FromRoute] string filetype, [FromBody] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return Content("File not selected");
+            if (string.IsNullOrEmpty(filetype))
+                return Content("File type required");
+            string[] filedetails = file.FileName.Split('.');
+            filedetails[0] = DateTime.Now.ToString(@"yyyy-MM-dd ") + "T" + DateTime.Now.ToString(@" hh mm ss");
+            string filename = string.Concat(filedetails[0], ".", filedetails[1]);
+            var path = Path.Combine(
+                Directory.GetCurrentDirectory(), $"Files/{filetype}",
+                filename);
+
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            return Ok($"{filename}");
         }
     }
 }
