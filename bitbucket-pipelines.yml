@@ -11,8 +11,8 @@ pipelines:
         caches:
           - dotnetcore
         script: # Modify the comma`nds below to build your repository.
-          - export PROJECT_NAME=yourProjectName
-          - export TEST_NAME=yourTestName
+          - export PROJECT_NAME=Resturant
+          - export TEST_NAME=Resturant.Tests
           - dotnet restore
           - dotnet build $PROJECT_NAME
           - dotnet test $TEST_NAME
