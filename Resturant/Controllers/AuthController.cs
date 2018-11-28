@@ -183,17 +183,20 @@ namespace Resturant.Controllers
             return Ok(user);
         }
 
+        [HttpGet()]
+        public async Task<ActionResult> Claims()
+        {
+
+            var response = context.User.Claims;
+
+            return Ok(response);
+        }
 
         [HttpGet("Logout/{username}")]
         public async Task<IActionResult> Logout([FromRoute]string username)
         {
             if (!ModelState.IsValid) return BadRequest();
-            
-            //if (context.User.Identity.IsAuthenticated)
-            //{
-            //    var response = context.User.Claims;
-            //    Console.WriteLine(response);
-            //}
+           
             var user = await _userManager.FindByNameAsync(username);
             user.Login = DateTime.UtcNow;
             user.IsLoggedIn = false;
@@ -278,14 +281,14 @@ namespace Resturant.Controllers
 
             try
             {
-                await _userManager.RemovePasswordAsync(appuser);
-                await _userManager.AddPasswordAsync(appuser, pin);
-                string passwordhash = _userManager.PasswordHasher.HashPassword(appuser, pin);
-                appuser.PasswordHash = passwordhash;
-                await _userManager.UpdateNormalizedEmailAsync(appuser);
-                await _userManager.UpdateNormalizedUserNameAsync(appuser);
-                await _userManager.UpdateSecurityStampAsync(appuser);
-                await _userManager.UpdateAsync(appuser);
+                //await _userManager.RemovePasswordAsync(appuser);
+                //await _userManager.AddPasswordAsync(appuser, pin);
+                //string passwordhash = _userManager.PasswordHasher.HashPassword(appuser, pin);
+                //appuser.PasswordHash = passwordhash;
+                //await _userManager.UpdateNormalizedEmailAsync(appuser);
+                //await _userManager.UpdateNormalizedUserNameAsync(appuser);
+                //await _userManager.UpdateSecurityStampAsync(appuser);
+                //await _userManager.UpdateAsync(appuser);
                 //await _context.SaveChangesAsync();
 
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(appuser);

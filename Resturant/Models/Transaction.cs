@@ -22,12 +22,10 @@ namespace Resturant.Models
         [Required]
         public int NominalId { get; set; }
         public int? TellerId { get; set; }
-        public int? OrderId { get; set; }
         [Required]
         public string Reference { get; set; }
 
         public Nominal Nominal { get; set; }
         public Teller Teller { get; set; }
-        public Order Order { get; set; }
     }
 }

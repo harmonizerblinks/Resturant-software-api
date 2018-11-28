@@ -161,7 +161,7 @@ namespace Resturant
                     },
                     License = new License
                     {
-                        Name = "Acyst Technology Ltd", Url = "http://acyst.tech/services"
+                        Name = "Acyst Technology Ltd", Url = "https://github.com/harmonizerblinks/Resturant-software-api/blob/master/LICENSE"
                     }
                 });
             });
@@ -169,10 +169,10 @@ namespace Resturant
             
             services.AddMvc(o =>
             {
-                //var policy = new AuthorizationPolicyBuilder()
-                //    .RequireAuthenticatedUser()
-                //    .Build();
-                //o.Filters.Add(new AuthorizeFilter(policy));
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                o.Filters.Add(new AuthorizeFilter(policy));
             }).AddJsonOptions(options =>
             {
                 //options.SerializerSettings.ContractResolver = new DefaultContractResolver();
@@ -204,12 +204,12 @@ namespace Resturant
                 app.UseExceptionHandler();
                 //app.UseHsts();
             }
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug(LogLevel.Trace);
+            //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            //loggerFactory.AddDebug(LogLevel.Trace);
 
             //app.UseHttpStatusCodeExceptionMiddleware();
-            //app.UseHangfireServer();
-            //app.UseHangfireDashboard();
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
             //Add our new middleware to the pipeline
             //app.UseMiddleware<LoggingMiddleware>();
             app.UseCors("AllowAny");

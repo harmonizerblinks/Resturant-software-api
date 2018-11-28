@@ -30,7 +30,7 @@ namespace Resturant.Services
             client.Port = 587;
             client.UseDefaultCredentials = false;
             client.EnableSsl = true;
-            client.Credentials = new NetworkCredential("Harmonizerblinks@gmail.com".Trim(), "fortune@12".Trim());
+            client.Credentials = new NetworkCredential("acystrest@gmail.com".Trim(), "Stevie@1".Trim());
 
             MailMessage mailMessage = new MailMessage();
             mailMessage.From = new MailAddress(fromEmail);
@@ -49,13 +49,6 @@ namespace Resturant.Services
         //string Email = Configuration.GetSection("AppSettings")["Email"];
         //string Password = Configuration.GetSection("AppSettings")["Password"];
         //client.Credentials = new NetworkCredential(Email.Trim(), Password.Trim());
-
-        //SmtpClient client = new SmtpClient();
-        //client.Host = "smtp.gmail.com";
-        //client.Port = 587;
-        //client.UseDefaultCredentials = false;
-        //client.EnableSsl = true;
-        //client.Credentials = new NetworkCredential("Harmonizerblinks@gmail.com".Trim(), "fortune@12".Trim());
 
 
     }

@@ -17,5 +17,6 @@ namespace Resturant.Models
 
         public AppUser AppUser { get; set; }
         public Nominal Nominal { get; set; }
+        public IList<Transaction> Transactions { get; set;}
     }
 }

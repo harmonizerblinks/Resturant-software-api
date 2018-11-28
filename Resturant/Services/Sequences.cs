@@ -14,7 +14,7 @@ using Hangfire;
 
 namespace Resturant.Services
 {
-    public class SequenceCode
+    public class Sequences
     {
         private readonly AppDbContext _context;
         //private readonly ISequenceRepository _sequenceRepository;
@@ -22,7 +22,7 @@ namespace Resturant.Services
         //private readonly ISmsApiRepository _smsapiRepository;
         public IHubContext<OrderHub> _order;
 
-        private SequenceCode(AppDbContext context /*, IHubContext<OrderHub> order /*ISequenceRepository sequenceRepository,
+        private Sequences(AppDbContext context /*, IHubContext<OrderHub> order /*ISequenceRepository sequenceRepository,
             ISmsApiRepository smsapiRepository, ISmsRepository smsRepository*/ )
         {
             //_sequenceRepository = sequenceRepository;
@@ -57,7 +57,7 @@ namespace Resturant.Services
             return null;
         }
 
-        public async Task<string> Sms(Order order)
+        public async Task<Sms> Sms(Order order)
         {
             var config = _context.SmsApi.LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
             //var config =_smsapiRepository.Query().LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
@@ -86,9 +86,9 @@ namespace Resturant.Services
                     await _context.SaveChangesAsync();
 
                     await _order.Clients.All.SendAsync("order", order);
-                    RefreshOrder();
+                    //await RefreshOrder();
 
-                    return smsresponse.Message;
+                    return sms;
                 }
                 catch (Exception e)
                 {
@@ -97,10 +97,15 @@ namespace Resturant.Services
             }
         }
 
-        public void RefreshOrder()
+        public async Task RefreshOrder()
         {
+            var pending = _context.Order.Where(a => a.Status.ToLower() == "pending" && a.Status.ToLower() == "inprogress")
+                .Include(l => l.Orderlist.Select(f=>f.Food));
+            var ready = _context.Order.Where(a => a.Status.ToLower() == "ready").Include(l => l.Orderlist.Select(f => f.Food));
 
-            _order.Clients.All.SendAsync("Send", "Hello From Hangfire");
+            await _order.Clients.All.SendAsync("Send", "Hello From Hangfire");
+            await _order.Clients.All.SendAsync("pending", pending);
+            await _order.Clients.All.SendAsync("ready", ready);
 
             //await Clients.All.SendAsync("Send", message);
         }

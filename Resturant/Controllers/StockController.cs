@@ -56,10 +56,10 @@ namespace Resturant.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             //var log = _stocklogRepository.GetAll().Where(l => l.ItemId == id).OrderByDescending(o => o.Date).ToList();
-            var log = _stocklogRepository.GetAll().Select(
+            var log = _stocklogRepository.GetAll().Where(l => l.ItemId == id).Select(
                     u => new StockLog()
                     {
-                        StockId = u.StockId, Name = u.Item.Name, Date = u.Date,
+                        StockLogId = u.StockLogId, StockId = u.StockId, Name = u.Item.Name, Date = u.Date,
                         Price = u.Quantity * u.Item.Price, Quantity = u.Quantity, ItemId = u.ItemId,
                         UserId = _appuserRepository.Query().Where(i => i.Id == u.UserId).Select(n => n.UserName).FirstOrDefault()
                     }).OrderByDescending(o => o.Date).ToList();
@@ -81,8 +81,8 @@ namespace Resturant.Controllers
             var log = _stocklogRepository.GetAll().Select(
                     u => new StockLog()
                     {
-                        StockId = u.StockId, Name = u.Item.Name, Date = u.Date, ItemId = u.ItemId,
-                        Price = u.Quantity * u.Item.Price, Quantity = u.Quantity,
+                        StockLogId = u.StockLogId, StockId = u.StockId, Name = u.Item.Name, Date = u.Date, 
+                        Price = u.Quantity * u.Item.Price, Quantity = u.Quantity, ItemId = u.ItemId,
                         UserId = _appuserRepository.Query().Where(i => i.Id == u.UserId).Select(n => n.UserName.ToLower()).FirstOrDefault()
                     }).OrderByDescending(o => o.Date).ToList();
 

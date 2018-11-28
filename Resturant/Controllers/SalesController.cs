@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Resturant.Models;
@@ -12,17 +13,19 @@ namespace Resturant.Controllers
     public class SalesController : ControllerBase
     {
         private readonly ISalesRepository _salesRepository;
+        private readonly IStockRepository _stockRepository;
 
-        public SalesController(ISalesRepository salesRepository)
+        public SalesController(ISalesRepository salesRepository, IStockRepository stockRepository)
         {
             _salesRepository = salesRepository;
+            _stockRepository = stockRepository;
         }
 
         // GET api/Sales
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var sales = _salesRepository.Query();
+            var sales = _salesRepository.GetAll();
 
             return Ok(sales);
         }
@@ -47,6 +50,10 @@ namespace Resturant.Controllers
         public async Task<IActionResult> Post([FromBody] Sales value)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+            var stock = _stockRepository.Query().Where(s => s.ItemId == value.ItemId).FirstOrDefault();
+            if (stock.Quantity < value.Quantity) return BadRequest("Not Enough in Quantity in Stock");
+            stock.Quantity -= value.Quantity;
+            await _stockRepository.UpdateAsync(stock);
 
             await _salesRepository.InsertAsync(value);
 

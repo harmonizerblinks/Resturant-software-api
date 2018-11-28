@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Resturant.Repository;
 using Resturant.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using Resturant.Services;
 
 namespace Resturant.Controllers
 {
@@ -11,18 +14,22 @@ namespace Resturant.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
+        private Sequences _get;
         private readonly IItemRepository _itemRepository;
+        private readonly IStockRepository _stockRepository;
 
-        public ItemController(IItemRepository itemRepository)
+        public ItemController(IItemRepository itemRepository, IStockRepository stockRepository, Sequences get)
         {
+            _get = get;
             _itemRepository = itemRepository;
+            _stockRepository = stockRepository;
         }
 
         // GET api/Item
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var item = _itemRepository.Query();
+            var item = _itemRepository.Query().Include(s=>s.Stock);
 
             return Ok(item);
         }
@@ -47,9 +54,12 @@ namespace Resturant.Controllers
         public async Task<IActionResult> Post([FromBody] Item value)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+            value.Code = await _get.GetCode("Item");
 
             await _itemRepository.InsertAsync(value);
 
+            var stock = new Stock() { ItemId = value.ItemId, Quantity = 0, MUserId = value.MUserId, Date = DateTime.UtcNow };
+            await _stockRepository.InsertAsync(stock);
             return Created($"item/{value.ItemId}", value);
         }
 
@@ -60,6 +70,8 @@ namespace Resturant.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             if (id != value.ItemId) return BadRequest();
+
+            if (value.Code == null) value.Code = await _get.GetCode("Item");
 
             await _itemRepository.UpdateAsync(value);
 

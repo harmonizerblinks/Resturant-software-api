@@ -22,6 +22,7 @@ namespace Resturant.Models
         [DataType(DataType.Currency)]
         public decimal SalePrice { get; set; }
 
+        public IList<Stock> Stock { get; set; }
         public IList<StockLog> Logs { get; set; }
     }
 }

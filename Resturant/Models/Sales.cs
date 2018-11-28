@@ -10,12 +10,13 @@ namespace Resturant.Models
     {
         [Key]
         public int SalesId { get; set; }
+        [Required]
         public int ItemId { get; set; }
         [Required]
-        //[DataType(DataType.Currency)]
+        [DataType(DataType.Currency)]
         public decimal Price { get; set; }
         [Required]
-        //[DataType(DataType.Currency)]
+        [DataType(DataType.Currency)]
         public decimal Amount { get; set; }
         public string Type { get; set; }
         [Required]

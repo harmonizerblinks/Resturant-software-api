@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Resturant.Repository;
 using Resturant.Models;
+using Resturant.Services;
 
 namespace Resturant.Controllers
 {
@@ -11,10 +12,12 @@ namespace Resturant.Controllers
     [ApiController]
     public class FoodController : ControllerBase
     {
+        private Sequences _get;
         private readonly IFoodRepository _foodRepository;
 
-        public FoodController(IFoodRepository foodRepository)
+        public FoodController(IFoodRepository foodRepository, Sequences get)
         {
+            _get = get;
             _foodRepository = foodRepository;
         }
 
@@ -47,7 +50,7 @@ namespace Resturant.Controllers
         public async Task<IActionResult> Post([FromBody] Food value)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-
+            value.Code = await _get.GetCode("Food");
             await _foodRepository.InsertAsync(value);
 
             return Created($"food/{value.FoodId}", value);
@@ -60,6 +63,8 @@ namespace Resturant.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             if (id != value.FoodId) return BadRequest();
+
+            if(value.Code == null) value.Code = await _get.GetCode("Food");
 
             await _foodRepository.UpdateAsync(value);
 

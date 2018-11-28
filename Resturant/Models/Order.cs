@@ -33,8 +33,10 @@ namespace Resturant.Models
         public string Address { get; set; }
         [Required]
         public string Status { get; set; }
-        
+        public int TransactionId { get; set; }
+
         public Location Location { get; set; }
+        public Transaction Transaction { get; set; }
         public IList<OrderList> Orderlist { get; set; }
     }
 }

@@ -20,14 +20,14 @@ namespace Resturant.Controllers
     {
         private IOrderRepository _orderRepository;
         private IHubContext<OrderHub> _order;
-        /// private SequenceCode _get;
+        private Sequences _get;
 
-        //public ServicesController(IOrderRepository orderRepository, IHubContext<OrderHub> order, SequenceCode get)
-        //{
-        //    _orderRepository = orderRepository;
-        //    _order = order;
-        //    _get = get;
-        //}
+        public ServicesController(IOrderRepository orderRepository, IHubContext<OrderHub> order, Sequences get)
+        {
+            _orderRepository = orderRepository;
+            _order = order;
+            _get = get;
+        }
 
         // GET api/Services
         [HttpGet]

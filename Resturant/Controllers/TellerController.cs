@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Resturant.Models;
@@ -40,6 +41,16 @@ namespace Resturant.Controllers
             }
             else
                 return BadRequest();
+        }
+
+        // GET api/Order/Summary/userid
+        [HttpGet("Summary/{id}")]
+        public async Task<IActionResult> GetTellerSummary([FromRoute] string id)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var order = _tellerRepository.Query().Where(c => c.UserId == id);
+
+            return Ok(order);
         }
 
         // POST api/Teller

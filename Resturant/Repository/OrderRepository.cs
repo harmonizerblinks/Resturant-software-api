@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Resturant.Models;
+using System;
 using System.Linq;
 
 namespace Resturant.Repository
@@ -15,6 +16,11 @@ namespace Resturant.Repository
         public IQueryable<Order> GetAll()
         {
             return _dbContext.Order.Include(x => x.Orderlist).AsQueryable();
+        }
+
+        public IQueryable<Order> GetTodayOrders()
+        {
+            return _dbContext.Order.Where(d=>d.Date.Date == DateTime.Today.Date).Include(x => x.Orderlist).AsQueryable();
         }
     }
 }
