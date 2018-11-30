@@ -5,8 +5,6 @@ using Resturant.Controllers;
 using Resturant.Models;
 using Resturant.Repository;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Resturant.Test.TestControllers
