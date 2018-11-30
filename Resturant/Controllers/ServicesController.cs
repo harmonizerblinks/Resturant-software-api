@@ -19,13 +19,13 @@ namespace Resturant.Controllers
     public class ServicesController : ControllerBase
     {
         private IOrderRepository _orderRepository;
-        private IHubContext<OrderHub> _order;
-        private Sequences _get;
+        //private IHubContext<OrderHub> _order { get; set; }
+        private IMyServices _get;
 
-        public ServicesController(IOrderRepository orderRepository, IHubContext<OrderHub> order, Sequences get)
+        public ServicesController(IOrderRepository orderRepository, /*IHubContext<OrderHub> order,*/ IMyServices get)
         {
             _orderRepository = orderRepository;
-            _order = order;
+            //_order = order;
             _get = get;
         }
 
@@ -34,18 +34,18 @@ namespace Resturant.Controllers
         public async Task<IActionResult> Get()
         {
             var order = _orderRepository.Query();
-            RecurringJob.AddOrUpdate("Updating Order Screen", () => RefreshOrderAsync("hello from harmony"), Cron.Minutely);
-            //RecurringJob.AddOrUpdate<OrderHub>("Boardcast Message", x => x.Send("Hello From Hangfire"), Cron.Minutely);
+            //RecurringJob.AddOrUpdate("Updating Order Screen", () => _get.RefreshOrder(), Cron.Minutely);
+            //RecurringJob.AddOrUpdate("Boardcast Message", () => _order.Clients.All.SendAsync("Send", "Hello From Hangfire"), Cron.Minutely);
 
             return Ok( new { Status = "Ok" });
         }
         
-        private void RefreshOrderAsync(string message)
-        {
-            _order.Clients.All.SendAsync("Send", "Hello From Hangfire");
+        //private void RefreshOrderAsync(string message)
+        //{
+        //    _order.Clients.All.SendAsync("Send", "Hello From Hangfire");
 
-            _order.Clients.All.SendAsync("Send", message);
-        }
+        //    _order.Clients.All.SendAsync("Send", message);
+        //}
 
         //[NonAction]
         //private void Refresh()

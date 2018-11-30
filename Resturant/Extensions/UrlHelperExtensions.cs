@@ -12,7 +12,7 @@ namespace Resturant.Extensions
         {
             if (!urlHelper.IsLocalUrl(localUrl))
             {
-                return urlHelper.Page("../");
+                return urlHelper.Page("/Index");
             }
 
             return localUrl;
@@ -21,7 +21,7 @@ namespace Resturant.Extensions
         public static string EmailConfirmationLink(this IUrlHelper urlHelper, string userId, string code, string scheme)
         {
             return urlHelper.Page(
-                "Account/ConfirmEmail",
+                "/Account/ConfirmEmail",
                 pageHandler: null,
                 values: new { userId, code },
                 protocol: scheme);
@@ -30,7 +30,7 @@ namespace Resturant.Extensions
         public static string ResetPasswordCallbackLink(this IUrlHelper urlHelper, string userId, string code, string scheme)
         {
             return urlHelper.Page(
-                "Account/ResetPassword",
+                "/Account/ResetPassword",
                 pageHandler: null,
                 values: new { userId, code },
                 protocol: scheme);

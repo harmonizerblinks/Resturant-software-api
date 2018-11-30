@@ -78,9 +78,12 @@ namespace Resturant
             services.AddTransient<IStockRepository, StockRepository>();
             services.AddTransient<IStockLogRepository, StockLogRepository>();
             services.AddTransient<ITellerRepository, TellerRepository>();
+            services.AddTransient<ITransitRepository, TransitRepository>();
             services.AddTransient<ITransactionRepository, TransactionRepository>();
             services.AddTransient<IAppUserRepository, AppUserRepository>();
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IMyServices, MyServices>();
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             //Add Identity and Jwt
@@ -169,10 +172,10 @@ namespace Resturant
             
             services.AddMvc(o =>
             {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                o.Filters.Add(new AuthorizeFilter(policy));
+                //var policy = new AuthorizationPolicyBuilder()
+                //    .RequireAuthenticatedUser()
+                //    .Build();
+                //o.Filters.Add(new AuthorizeFilter(policy));
             }).AddJsonOptions(options =>
             {
                 //options.SerializerSettings.ContractResolver = new DefaultContractResolver();
@@ -207,22 +210,22 @@ namespace Resturant
             //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             //loggerFactory.AddDebug(LogLevel.Trace);
 
-            //app.UseHttpStatusCodeExceptionMiddleware();
-            app.UseHangfireServer();
-            app.UseHangfireDashboard();
+            // app.UseHttpStatusCodeExceptionMiddleware();
             //Add our new middleware to the pipeline
             //app.UseMiddleware<LoggingMiddleware>();
+
             app.UseCors("AllowAny");
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
             app.UseDatabaseErrorPage();
             app.UseStaticFiles();
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(
-            Path.Combine(Directory.GetCurrentDirectory(), "Files")),
-                RequestPath = "/Files"
+                Path.Combine(Directory.GetCurrentDirectory(), "Files")), RequestPath = "/Files"
             });
             app.UseAuthentication();
-            //app.UseSerilog();
+            // app.UseSerilog();
             app.UseStatusCodePages();
             app.UseSignalR(o =>
             {

@@ -275,10 +275,11 @@ namespace Resturant.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var appmail = _userManager.Users.Any(u => u.Email.Equals(email));
-            if (appmail) return NotFound($"There is no valid Account with {email}");
+            if (!appmail) return NotFound($"There is no valid Account with {email}");
             var appuser = await _userManager.FindByEmailAsync(email);
             var pin = DateTime.Now.ToString("ddhms"); appuser.EmailConfirmed = true;
-
+            appuser.Employee = _employeeRepository.Query().Where(e=>e.EmployeeId == appuser.EmployeeId).FirstOrDefault();
+            if (appuser.Employee.FullName == null) appuser.Employee.FullName = appuser.UserName;
             try
             {
                 //await _userManager.RemovePasswordAsync(appuser);
@@ -293,7 +294,7 @@ namespace Resturant.Controllers
 
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(appuser);
                 var callbackUrl = Url.EmailConfirmationLink(appuser.Id, code, Request.Scheme);
-                await _emailSender.SendEmailResetConfirmationAsync(appuser.Email, callbackUrl, appuser);
+                await _emailSender.SendEmailResetConfirmationAsync(callbackUrl, pin, appuser);
             }
             catch (DbUpdateConcurrencyException)
             {

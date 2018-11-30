@@ -18,7 +18,7 @@ namespace Resturant.Controllers
     public class OrderController : ControllerBase
     {
         public IHubContext<OrderHub> _order;
-        private Sequences _get;
+        private IMyServices _get;
         private IOrderRepository _orderRepository;
         private IOrderListRepository _orderlistRepository;
         private readonly ITellerRepository _tellerRepository;
@@ -26,14 +26,15 @@ namespace Resturant.Controllers
         private readonly ITransactionRepository _transactionRepository;
 
         public OrderController(IOrderRepository orderRepository, IOrderListRepository orderlistRepository,
-            IHubContext<OrderHub> order, Sequences get, ITransitRepository transitRepository,
+            IHubContext<OrderHub> order, IMyServices get, ITransitRepository transitRepository,
             ITransactionRepository transactionRepository, ITellerRepository tellerRepository)
         {
             _get = get;
             _order = order;
-            _tellerRepository = tellerRepository;
-            _tellerRepository = tellerRepository;
             _orderRepository = orderRepository;
+            _tellerRepository = tellerRepository;
+            _transitRepository = transitRepository;
+            _transactionRepository = transactionRepository;
             _orderlistRepository = orderlistRepository;
         }
 

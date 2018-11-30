@@ -11,7 +11,7 @@ namespace Resturant.Controllers
     [ApiController]
     public class SequenceController : ControllerBase
     {
-        private readonly ISequenceRepository _sequenceRepository;
+        private ISequenceRepository _sequenceRepository { get; set; }
 
         public SequenceController(ISequenceRepository sequenceRepository)
         {

@@ -12,10 +12,10 @@ namespace Resturant.Controllers
     [ApiController]
     public class FoodController : ControllerBase
     {
-        private Sequences _get;
+        private IMyServices _get;
         private readonly IFoodRepository _foodRepository;
 
-        public FoodController(IFoodRepository foodRepository, Sequences get)
+        public FoodController(IFoodRepository foodRepository, IMyServices get)
         {
             _get = get;
             _foodRepository = foodRepository;

@@ -14,11 +14,11 @@ namespace Resturant.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private Sequences _get;
+        private IMyServices _get;
         private readonly IItemRepository _itemRepository;
         private readonly IStockRepository _stockRepository;
 
-        public ItemController(IItemRepository itemRepository, IStockRepository stockRepository, Sequences get)
+        public ItemController(IItemRepository itemRepository, IStockRepository stockRepository, IMyServices get)
         {
             _get = get;
             _itemRepository = itemRepository;
