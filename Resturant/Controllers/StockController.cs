@@ -25,7 +25,7 @@ namespace Resturant.Controllers
             _appuserRepository = appuserRepository;
         }
 
-        // GET api/Stock
+        // GET Stock
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -34,7 +34,7 @@ namespace Resturant.Controllers
             return Ok(stock);
         }
 
-        // GET api/Stock
+        // GET Stock
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -50,7 +50,7 @@ namespace Resturant.Controllers
         }
 
 
-        // GET api/Stock/log/id
+        // GET Stock/log/id
         [HttpGet("log/{id}")]
         public async Task<IActionResult> GetLogById([FromRoute] int id)
         {
@@ -72,7 +72,7 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // GET api/Stock/log
+        // GET Stock/log
         [HttpGet("log")]
         public async Task<IActionResult> GetLog()
         {
@@ -94,7 +94,7 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/Stock
+        // POST Stock
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Stock value)
         {
@@ -118,7 +118,7 @@ namespace Resturant.Controllers
             return Created($"stock/{value.StockId}", value);
         }
 
-        // PUT api/Stock
+        // PUT Stock
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromBody] Stock value, [FromRoute] int id)
         {
@@ -131,7 +131,7 @@ namespace Resturant.Controllers
             return Ok(value);
         }
 
-        // DELETE api/Stock
+        // DELETE Stock
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

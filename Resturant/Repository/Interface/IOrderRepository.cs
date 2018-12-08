@@ -1,4 +1,5 @@
 ﻿using Resturant.Models;
+using System;
 using System.Linq;
 
 namespace Resturant.Repository
@@ -7,6 +8,6 @@ namespace Resturant.Repository
     {
         IQueryable<Order> GetAll();
 
-        IQueryable<Order> GetTodayOrders();
+        IQueryable<Order> GetTodayOrders(DateTime date);
     }
 }

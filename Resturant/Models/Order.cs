@@ -15,17 +15,17 @@ namespace Resturant.Models
         [Required]
         public string FullName { get; set; }
         [Required]
-        //[DataType(DataType.PhoneNumber)]
+        [DataType(DataType.PhoneNumber)]
         public string Mobile { get; set; }
-        //[DataType(DataType.EmailAddress)]
+        [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
         [Required]
         public int LocationId { get; set; }
-        //[DataType(DataType.Currency)]
+        [DataType(DataType.Currency)]
         public decimal Price { get; set; }
-        //[DataType(DataType.Currency)]
+        [DataType(DataType.Currency)]
         public decimal Vat { get; set; }
-        //[DataType(DataType.Currency)]
+        [DataType(DataType.Currency)]
         public decimal Total { get; set; }
         public string Source { get; set; }
         [Required]

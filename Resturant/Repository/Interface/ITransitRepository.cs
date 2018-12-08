@@ -1,12 +1,10 @@
 ﻿using Resturant.Models;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Resturant.Repository
 {
     public interface ITransitRepository : IGenericRepository<Transit>
     {
+        IQueryable<Transit> GetAll();
     }
 }

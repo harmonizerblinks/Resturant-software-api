@@ -14,19 +14,19 @@ using Hangfire;
 
 namespace Resturant.Services
 {
-    public class MyServices : IMyServices
+    public class MyServices //: IMyServices
     {
-        //protected AppDbContext _context { get; set; }
-        protected ISmsRepository _smsRepository;
-        protected ISmsApiRepository _smsapiRepository;
-        protected IOrderRepository _orderRepository;
-        protected ISequenceRepository _sequenceRepository;
+        protected AppDbContext _context { get; set; }
+        //protected ISmsRepository _smsRepository;
+        //protected ISmsApiRepository _smsapiRepository;
+        //protected IOrderRepository _orderRepository;
+        //protected ISequenceRepository _sequenceRepository;
         protected IHubContext<OrderHub> _order;
         
         public async Task<string> GetCode(string type)
         {
-            //var sequence = await _context.Sequence.FirstOrDefaultAsync(a => a.Name.ToLower() == type.ToLower());
-            var sequence = await _sequenceRepository.Query().FirstOrDefaultAsync(a => a.Name.ToLower() == type.ToLower());
+            var sequence = await _context.Sequence.FirstOrDefaultAsync(a => a.Name.ToLower() == type.ToLower());
+            //var sequence = await _sequenceRepository.Query().FirstOrDefaultAsync(a => a.Name.ToLower() == type.ToLower());
 
             if (sequence != null)
             {
@@ -36,9 +36,9 @@ namespace Resturant.Services
                 string code = sequence.Prefix + number;
 
                 sequence.Counter += 1;
-                await _sequenceRepository.UpdateAsync(sequence);
-                //_context.Entry(sequence).State = EntityState.Modified;
-                //await _context.SaveChangesAsync();
+                //await _sequenceRepository.UpdateAsync(sequence);
+                _context.Entry(sequence).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
 
                 return code;
             }
@@ -47,8 +47,8 @@ namespace Resturant.Services
 
         public async Task<Sms> Sms(Order order)
         {
-            //var config = _context.SmsApi.LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
-            var config =_smsapiRepository.Query().LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
+            var config = _context.SmsApi.LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
+            //var config =_smsapiRepository.Query().LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
             if (config == null)
             {
                 return null;
@@ -69,9 +69,9 @@ namespace Resturant.Services
                     var json = await httpClient.GetStringAsync(sb.ToString());
                     var smsresponse = JsonConvert.DeserializeObject<SmsResponse>(json);
                     sms.Code = smsresponse.Code; sms.Response = smsresponse.Message;
-                    await _smsRepository.InsertAsync(sms);
-                    //_context.Sms.Add(sms);
-                    //await _context.SaveChangesAsync();
+                    //await _smsRepository.InsertAsync(sms);
+                    _context.Sms.Add(sms);
+                    await _context.SaveChangesAsync();
 
                     await _order.Clients.All.SendAsync("order", order);
                     //await RefreshOrder();
@@ -87,9 +87,12 @@ namespace Resturant.Services
 
         public async Task<string> RefreshOrder()
         {
-            var pending = _orderRepository.GetAll().Where(a => a.Status.ToLower() == "pending" && a.Status.ToLower() == "inprogress")
-                .Include(l => l.Orderlist.Select(f=>f.Food));
-            var ready = _orderRepository.GetAll().Where(a => a.Status.ToLower() == "ready").Include(l => l.Orderlist.Select(f => f.Food));
+            //var pending = _orderRepository.GetAll().Where(a => a.Status.ToLower() == "pending" && a.Status.ToLower() == "inprogress")
+            //    .Include(l => l.Orderlist.Select(f=>f.Food));
+            //var ready = _orderRepository.GetAll().Where(a => a.Status.ToLower() == "ready").Include(l => l.Orderlist.Select(f => f.Food));
+            var pending = _context.Order.Where(a => a.Status.ToLower() == "pending" && a.Status.ToLower() == "inprogress")
+                .Include(l => l.Orderlist.Select(f => f.Food));
+            var ready = _context.Order.Where(a => a.Status.ToLower() == "ready").Include(l => l.Orderlist.Select(f => f.Food));
 
             await _order.Clients.All.SendAsync("Send", "Hello From Hangfire");
             await _order.Clients.All.SendAsync("pending", pending);

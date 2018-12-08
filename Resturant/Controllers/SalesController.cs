@@ -21,7 +21,7 @@ namespace Resturant.Controllers
             _stockRepository = stockRepository;
         }
 
-        // GET api/Sales
+        // GET Sales
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -30,7 +30,7 @@ namespace Resturant.Controllers
             return Ok(sales);
         }
 
-        // GET api/Sales
+        // GET Sales
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -45,7 +45,7 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/Sales
+        // POST Sales
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Sales value)
         {
@@ -60,7 +60,7 @@ namespace Resturant.Controllers
             return Created($"sales/{value.SalesId}", value);
         }
 
-        // PUT api/Sales
+        // PUT Sales
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromBody] Sales value, [FromRoute] int id)
         {
@@ -73,7 +73,7 @@ namespace Resturant.Controllers
             return Ok(value);
         }
 
-        // DELETE api/Sales
+        // DELETE Sales
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

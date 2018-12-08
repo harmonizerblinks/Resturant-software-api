@@ -8,6 +8,7 @@ namespace Resturant.Models
     {
         [Key]
         public int EmployeeId { get; set; }
+        public string Code { get; set; }
         [Required]
         public string FullName { get; set; }
         [Required]

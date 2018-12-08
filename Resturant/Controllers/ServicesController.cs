@@ -10,6 +10,7 @@ using Hangfire;
 using Microsoft.AspNetCore.SignalR;
 using Resturant.Models;
 using System.Collections;
+using Microsoft.EntityFrameworkCore;
 
 namespace Resturant.Controllers
 {
@@ -19,27 +20,42 @@ namespace Resturant.Controllers
     public class ServicesController : ControllerBase
     {
         private IOrderRepository _orderRepository;
-        //private IHubContext<OrderHub> _order { get; set; }
-        private IMyServices _get;
+        private IHubContext<OrderHub> _order { get; set; }
 
-        public ServicesController(IOrderRepository orderRepository, /*IHubContext<OrderHub> order,*/ IMyServices get)
+        public ServicesController(IOrderRepository orderRepository, IHubContext<OrderHub> order)
         {
             _orderRepository = orderRepository;
-            //_order = order;
-            _get = get;
+            _order = order;
         }
 
-        // GET api/Services
+        // GET Services
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var order = _orderRepository.Query();
-            //RecurringJob.AddOrUpdate("Updating Order Screen", () => _get.RefreshOrder(), Cron.Minutely);
+            var order = _orderRepository.GetAll().Count();
+            //var _get = new MyServices();
+            RecurringJob.AddOrUpdate("Updating Order Screen", () => Refresh(), Cron.Hourly);
             //RecurringJob.AddOrUpdate("Boardcast Message", () => _order.Clients.All.SendAsync("Send", "Hello From Hangfire"), Cron.Minutely);
 
-            return Ok( new { Status = "Ok" });
+            return Ok( new { Status = "Ok", orders = order });
         }
-        
+
+        // GET Sms
+        [HttpGet("Order")]
+        public async Task<IActionResult> Refresh()
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            List<Order> pending = _orderRepository.GetAll().Where(a => a.Status.ToLower() == "pending" || a.Status.ToLower() == "in-process").ToList();
+            List<Order> ready = _orderRepository.GetAll().Where(a => a.Status.ToLower() == "ready").ToList();
+
+            await _order.Clients.All.SendAsync("Send", "Hello From Hangfire");
+            await _order.Clients.All.SendAsync("pending", pending);
+            await _order.Clients.All.SendAsync("ready", ready);
+            
+            return Ok(new { pending, ready });
+        }
+
         //private void RefreshOrderAsync(string message)
         //{
         //    _order.Clients.All.SendAsync("Send", "Hello From Hangfire");

@@ -1,8 +1,6 @@
-﻿using Resturant.Models;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using Resturant.Models;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Resturant.Repository
 {
@@ -11,6 +9,11 @@ namespace Resturant.Repository
         public TransitRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public IQueryable<Transit> GetAll()
+        {
+            return _dbContext.Transit.Include(x => x.Nominal).AsQueryable();
         }
     }
 }

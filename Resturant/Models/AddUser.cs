@@ -11,14 +11,13 @@ namespace Resturant.Models
         public string Id { get; set; }
         [Required]
         public string Username { get; set; }
+        [Required]
         public string Password { get; set; }
         public string Fullname { get; set; }
-        [Required]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
-        [Required]
         public string Mobile { get; set; }
-
+        [Required]
         public int? EmployeeId { get; set; }
         [Required]
         public string UserType { get; set; }

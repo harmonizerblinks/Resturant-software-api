@@ -291,6 +291,8 @@ namespace Resturant.Migrations
                     b.Property<string>("Address")
                         .IsRequired();
 
+                    b.Property<string>("Code");
+
                     b.Property<DateTime>("Date");
 
                     b.Property<DateTime>("DateOfBirth");
@@ -485,6 +487,8 @@ namespace Resturant.Migrations
 
                     b.Property<decimal>("Total");
 
+                    b.Property<int>("TransactionId");
+
                     b.Property<string>("UserId");
 
                     b.Property<decimal>("Vat");
@@ -492,6 +496,8 @@ namespace Resturant.Migrations
                     b.HasKey("OrderId");
 
                     b.HasIndex("LocationId");
+
+                    b.HasIndex("TransactionId");
 
                     b.ToTable("Order");
                 });
@@ -733,8 +739,7 @@ namespace Resturant.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Amount")
-                        .IsRequired();
+                    b.Property<decimal>("Amount");
 
                     b.Property<DateTime>("Date");
 
@@ -746,8 +751,6 @@ namespace Resturant.Migrations
                         .IsRequired();
 
                     b.Property<int>("NominalId");
-
-                    b.Property<int?>("OrderId");
 
                     b.Property<string>("Reference")
                         .IsRequired();
@@ -767,8 +770,6 @@ namespace Resturant.Migrations
                     b.HasKey("TransactionId");
 
                     b.HasIndex("NominalId");
-
-                    b.HasIndex("OrderId");
 
                     b.HasIndex("TellerId");
 
@@ -872,6 +873,11 @@ namespace Resturant.Migrations
                         .WithMany()
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Resturant.Models.Transaction", "Transaction")
+                        .WithMany()
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Resturant.Models.OrderList", b =>
@@ -898,7 +904,7 @@ namespace Resturant.Migrations
             modelBuilder.Entity("Resturant.Models.Stock", b =>
                 {
                     b.HasOne("Resturant.Models.Item", "Item")
-                        .WithMany()
+                        .WithMany("Stock")
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -936,12 +942,8 @@ namespace Resturant.Migrations
                         .HasForeignKey("NominalId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Resturant.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId");
-
                     b.HasOne("Resturant.Models.Teller", "Teller")
-                        .WithMany()
+                        .WithMany("Transactions")
                         .HasForeignKey("TellerId");
                 });
 

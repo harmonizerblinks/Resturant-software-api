@@ -30,13 +30,13 @@ namespace Resturant.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IConfiguration _configuration;
         // private readonly AppDbContext _context;
-        private readonly HttpContext context;
+        private readonly HttpContext _context;
         private readonly IEmailSender _emailSender;
         private readonly ICompanyRepository _companyRepository;
         private readonly IEmployeeRepository _employeeRepository;
 
-        public AuthController(UserManager<AppUser> usrMgr, SignInManager<AppUser> signinMgr, IConfiguration configuration
-            /* AppDbContext context*/, IEmailSender emailSender, ICompanyRepository companyRepository, IEmployeeRepository employeeRepository)
+        public AuthController(UserManager<AppUser> usrMgr, SignInManager<AppUser> signinMgr, IConfiguration configuration,
+             /*HttpContext context,*/ IEmailSender emailSender, ICompanyRepository companyRepository, IEmployeeRepository employeeRepository)
         {
             _userManager = usrMgr;
             _signInManager = signinMgr;
@@ -60,6 +60,8 @@ namespace Resturant.Controllers
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, true);
             if (!result.Succeeded) return BadRequest($"Incorrect Password for {model.Username}");
+
+            await _signInManager.SignInAsync(user, true, "Bearer");
 
             var userClaims = await _userManager.GetClaimsAsync(user);
 
@@ -112,10 +114,16 @@ namespace Resturant.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var appemail = _userManager.Users.Any(u => u.Email.Equals(user.Email));
             if (appemail) return BadRequest("Email already taken");
-            
+
+            var emp = _employeeRepository.Query().Where(e => e.EmployeeId.Equals(user.EmployeeId)).FirstOrDefault();
+            if (emp == null) return BadRequest("Select a valid Employee");
+
+            var app = _userManager.Users.Any(u => u.EmployeeId.Equals(user.EmployeeId));
+            if (app) return BadRequest("Employee Already has a Valid Account");
+
             var appUser = new AppUser
             {
-                Email = user.Email, PhoneNumber = user.Mobile, UserName = user.Username, MUserId = user.UserId,
+                Email = emp.Email, PhoneNumber = emp.Mobile, UserName = user.Username, MUserId = user.UserId,
                 Login = DateTime.Now, LogOut = DateTime.Now, IsLoggedIn = false, UserType = user.UserType,
                 EmailConfirmed = true, EmployeeId = user.EmployeeId, MDate = DateTime.UtcNow
             };
@@ -127,7 +135,7 @@ namespace Resturant.Controllers
             //var callbackUrl = Url.EmailConfirmationLink(appUser.Id, code, Request.Scheme);
             //await _emailSender.SendEmailConfirmationAsync(user.Email, callbackUrl, appUser);
 
-            return Ok(new { Status = "OK", Message = "Successfully Added", Output = "User has been added", User = user });
+            return Ok(user);
         }
         
         [HttpGet("User")]
@@ -136,10 +144,11 @@ namespace Resturant.Controllers
             var users = _userManager.Users.Select(
                     u => new AddUser()
                     {
-                        Id = u.Id, Email = u.Email, Mobile = u.PhoneNumber, Username = u.UserName, Fullname = u.Employee.FullName,
-                        Login = u.Login, LogOut = u.LogOut, IsLoggedIn = u.IsLoggedIn, UserType = u.UserType,
-                        EmployeeId = u.EmployeeId, MUserId = u.MUserId, MDate = u.MDate
-                    }).OrderByDescending(o => o.Login).ToListAsync();
+                        Id = u.Id, Email = u.Email, Mobile = u.PhoneNumber, Username = u.UserName,
+                        Fullname = u.Employee.FullName, Login = u.Login, LogOut = u.LogOut,
+                        EmployeeId = u.EmployeeId, UserType = u.UserType,
+                        MUserId = u.MUserId, MDate = u.MDate, IsLoggedIn = u.IsLoggedIn
+                    }).OrderByDescending(o => o.Login).ToList();
             //RecurringJob.AddOrUpdate("Adding Services",() => Console.WriteLine("Transparent!"), Cron.Hourly);
             return Ok(users);
         }
@@ -151,8 +160,7 @@ namespace Resturant.Controllers
 
             return Ok(users);
         }
-
-
+        
         [HttpPut("User/{id}")]
         public async Task<IActionResult> UpdateUser([FromRoute] string id, [FromBody] AddUser user)
         {
@@ -187,7 +195,9 @@ namespace Resturant.Controllers
         public async Task<ActionResult> Claims()
         {
 
-            var response = context.User.Claims;
+            var response = _context.User.Claims;
+
+            //response = _signInManager.ClaimsFactory();
 
             return Ok(response);
         }

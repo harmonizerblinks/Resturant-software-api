@@ -18,7 +18,7 @@ namespace Resturant.Controllers
             _employeeRepository = employeeRepository;
         }
 
-        // GET api/Employee
+        // GET Employee
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -27,7 +27,7 @@ namespace Resturant.Controllers
             return Ok(employee);
         }
 
-        // GET api/Employee
+        // GET Employee
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -42,7 +42,7 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/Employee
+        // POST Employee
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Employee value)
         {
@@ -53,7 +53,7 @@ namespace Resturant.Controllers
             return Created($"employee/{value.EmployeeId}", value);
         }
 
-        // PUT api/Employee
+        // PUT Employee
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromBody] Employee value, [FromRoute] int id)
         {
@@ -66,7 +66,7 @@ namespace Resturant.Controllers
             return Ok(value);
         }
 
-        // DELETE api/Employee
+        // DELETE Employee
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

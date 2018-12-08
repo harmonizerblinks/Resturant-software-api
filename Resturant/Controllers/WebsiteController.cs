@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Resturant.Controllers
 {
     [Produces("application/json")]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class WebsiteController : ControllerBase
     {

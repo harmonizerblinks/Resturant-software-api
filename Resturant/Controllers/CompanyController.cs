@@ -21,7 +21,7 @@ namespace Resturant.Controllers
             _companyRepository = companyRepository;
         }
 
-        // GET api/Company
+        // GET Company
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -30,7 +30,7 @@ namespace Resturant.Controllers
             return Ok(company);
         }
 
-        // GET api/Company
+        // GET Company
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -45,7 +45,7 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/Company
+        // POST Company
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Company value)
         {
@@ -69,7 +69,7 @@ namespace Resturant.Controllers
         }
 
 
-        // DELETE api/Company
+        // DELETE Company
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

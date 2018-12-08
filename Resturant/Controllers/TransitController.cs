@@ -21,16 +21,16 @@ namespace Resturant.Controllers
             _transitRepository = transitRepository;
         }
 
-        // GET api/Transit
+        // GET Transit
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var transit = _transitRepository.Query();
+            var transit = _transitRepository.GetAll();
 
             return Ok(transit);
         }
 
-        // GET api/Transit
+        // GET Transit
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -45,18 +45,20 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/Transit
+        // POST Transit
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Transit value)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             await _transitRepository.InsertAsync(value);
+            
+            value = _transitRepository.GetAll().Where(n=>n.TransitId == value.TransitId).FirstOrDefault();
 
             return Created($"transit/{value.TransitId}", value);
         }
 
-        // PUT api/Transit
+        // PUT Transit
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromBody] Transit value, [FromRoute] int id)
         {
@@ -69,7 +71,7 @@ namespace Resturant.Controllers
             return Ok(value);
         }
 
-        // DELETE api/Transit
+        // DELETE Transit
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

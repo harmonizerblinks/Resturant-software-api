@@ -12,16 +12,16 @@ namespace Resturant.Controllers
     [ApiController]
     public class FoodController : ControllerBase
     {
-        private IMyServices _get;
+        //private IMyServices _get;
         private readonly IFoodRepository _foodRepository;
 
-        public FoodController(IFoodRepository foodRepository, IMyServices get)
+        public FoodController(IFoodRepository foodRepository/*, IMyServices get*/)
         {
-            _get = get;
+            //_get = get;
             _foodRepository = foodRepository;
         }
 
-        // GET api/Food
+        // GET Food
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -30,7 +30,7 @@ namespace Resturant.Controllers
             return Ok(food);
         }
 
-        // GET api/Food
+        // GET Food
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -45,18 +45,18 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/Food
+        // POST Food
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Food value)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            value.Code = await _get.GetCode("Food");
+            //value.Code = await _get.GetCode("Food");
             await _foodRepository.InsertAsync(value);
 
             return Created($"food/{value.FoodId}", value);
         }
 
-        // PUT api/Food
+        // PUT Food
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromBody] Food value, [FromRoute] int id)
         {
@@ -64,14 +64,14 @@ namespace Resturant.Controllers
 
             if (id != value.FoodId) return BadRequest();
 
-            if(value.Code == null) value.Code = await _get.GetCode("Food");
+            //if(value.Code == null) value.Code = await _get.GetCode("Food");
 
             await _foodRepository.UpdateAsync(value);
 
             return Ok(value);
         }
 
-        // DELETE api/Food
+        // DELETE Food
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

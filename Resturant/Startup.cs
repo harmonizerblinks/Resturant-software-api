@@ -82,8 +82,7 @@ namespace Resturant
             services.AddTransient<ITransactionRepository, TransactionRepository>();
             services.AddTransient<IAppUserRepository, AppUserRepository>();
             services.AddTransient<IEmailSender, EmailSender>();
-            services.AddTransient<IMyServices, MyServices>();
-
+            //services.AddTransient<IMyServices, MyServices>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             //Add Identity and Jwt
@@ -164,7 +163,7 @@ namespace Resturant
                     },
                     License = new License
                     {
-                        Name = "Acyst Technology Ltd", Url = "https://github.com/harmonizerblinks/Resturant-software-api/blob/master/LICENSE"
+                        Name = "Acyst Technology Ltd", Url = "https://github.com/harmonizerblinks/Resturant-software-blob/master/LICENSE"
                     }
                 });
             });
@@ -207,13 +206,10 @@ namespace Resturant
                 app.UseExceptionHandler();
                 //app.UseHsts();
             }
-            //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            //loggerFactory.AddDebug(LogLevel.Trace);
-
-            // app.UseHttpStatusCodeExceptionMiddleware();
+            
             //Add our new middleware to the pipeline
             //app.UseMiddleware<LoggingMiddleware>();
-
+            
             app.UseCors("AllowAny");
             app.UseHangfireServer();
             app.UseHangfireDashboard();

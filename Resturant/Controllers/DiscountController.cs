@@ -18,16 +18,16 @@ namespace Resturant.Controllers
             _discountRepository = discountRepository;
         }
 
-        // GET api/Discount
+        // GET Discount
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var discount = _discountRepository.Query();
+            var discount = _discountRepository.GetAll();
 
             return Ok(discount);
         }
 
-        // GET api/Discount
+        // GET Discount
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -42,7 +42,7 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/Discount
+        // POST Discount
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Discount value)
         {
@@ -65,7 +65,7 @@ namespace Resturant.Controllers
             return Ok(value);
         }
 
-        // DELETE api/Discount
+        // DELETE Discount
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

@@ -14,18 +14,21 @@ namespace Resturant.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private IMyServices _get;
+        //private MyServices _get;
+        //private readonly SequenceController _get;
         private readonly IItemRepository _itemRepository;
         private readonly IStockRepository _stockRepository;
+        private readonly ISequenceRepository _sequenceRepository;
 
-        public ItemController(IItemRepository itemRepository, IStockRepository stockRepository, IMyServices get)
+        public ItemController(IItemRepository itemRepository, IStockRepository stockRepository/*, MyServices get*/)
         {
-            _get = get;
+            //_get = new MyServices();
+            //_get = new SequenceController(_sequenceRepository);
             _itemRepository = itemRepository;
             _stockRepository = stockRepository;
         }
 
-        // GET api/Item
+        // GET Item
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -34,7 +37,7 @@ namespace Resturant.Controllers
             return Ok(item);
         }
 
-        // GET api/Item
+        // GET Item
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -49,12 +52,12 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/Item
+        // POST Item
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Item value)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            value.Code = await _get.GetCode("Item");
+            //value.Code = await _get.GetCode("Item");
 
             await _itemRepository.InsertAsync(value);
 
@@ -63,7 +66,7 @@ namespace Resturant.Controllers
             return Created($"item/{value.ItemId}", value);
         }
 
-        // PUT api/Item
+        // PUT Item
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromBody] Item value, [FromRoute] int id)
         {
@@ -71,14 +74,14 @@ namespace Resturant.Controllers
 
             if (id != value.ItemId) return BadRequest();
 
-            if (value.Code == null) value.Code = await _get.GetCode("Item");
+            //if (value.Code == null) value.Code = await _get.GetCode("Item");
 
             await _itemRepository.UpdateAsync(value);
 
             return Ok(value);
         }
 
-        // DELETE api/Item
+        // DELETE Item
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

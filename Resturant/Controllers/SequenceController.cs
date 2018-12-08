@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Resturant.Repository;
 using Resturant.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Resturant.Controllers
 {
@@ -18,7 +20,7 @@ namespace Resturant.Controllers
             _sequenceRepository = sequenceRepository;
         }
 
-        // GET api/Sequence
+        // GET Sequence
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -27,7 +29,7 @@ namespace Resturant.Controllers
             return Ok(sequence);
         }
 
-        // GET api/Sequence
+        // GET Sequence
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -42,7 +44,7 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/Sequence
+        // POST Sequence
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Sequence value)
         {
@@ -53,7 +55,7 @@ namespace Resturant.Controllers
             return Created($"sequence/{value.SequenceId}", value);
         }
 
-        // PUT api/Sequence
+        // PUT Sequence
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromBody] Sequence value, [FromRoute] int id)
         {
@@ -66,7 +68,7 @@ namespace Resturant.Controllers
             return Ok(value);
         }
 
-        // DELETE api/Sequence
+        // DELETE Sequence
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
@@ -74,6 +76,29 @@ namespace Resturant.Controllers
             var sequence = _sequenceRepository.DeleteAsync(id);
 
             return Ok(sequence.Result);
+        }
+
+        [HttpGet("Code/{type}")]
+        public async Task<IActionResult> GetCode([FromRoute] string type)
+        {
+            //var sequence = await _context.Sequence.FirstOrDefaultAsync(a => a.Name.ToLower() == type.ToLower());
+            var sequence = _sequenceRepository.Query().Where(a => a.Name.ToLower() == type.ToLower()).FirstOrDefault();
+
+            if (sequence != null)
+            {
+                string transcodenum = (sequence.Counter).ToString();
+                int padnum = sequence.Length - transcodenum.Length;
+                string number = transcodenum.PadLeft(padnum + 1, '0');
+                string code = sequence.Prefix + number;
+
+                sequence.Counter += 1;
+                await _sequenceRepository.UpdateAsync(sequence);
+                //_context.Entry(sequence).State = EntityState.Modified;
+                //await _context.SaveChangesAsync();
+
+                return Ok(code);
+            }
+            return null;
         }
 
     }

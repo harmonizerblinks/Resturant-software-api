@@ -14,5 +14,7 @@ namespace Resturant.Models
         public string Name { get; set; }
         [Required]
         public int Discount { get; set; }
+
+        public IList<Discount> Discounts { get; set; }
     }
 }

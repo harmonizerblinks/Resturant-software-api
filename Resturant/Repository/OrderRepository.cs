@@ -18,9 +18,9 @@ namespace Resturant.Repository
             return _dbContext.Order.Include(x => x.Orderlist).AsQueryable();
         }
 
-        public IQueryable<Order> GetTodayOrders()
+        public IQueryable<Order> GetTodayOrders(DateTime date)
         {
-            return _dbContext.Order.Where(d=>d.Date.Date == DateTime.Today.Date).Include(x => x.Orderlist).AsQueryable();
+            return _dbContext.Order.Where(d=>d.Date.Date == date.Date ).Include(x => x.Orderlist).AsQueryable();
         }
     }
 }

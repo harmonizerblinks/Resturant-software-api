@@ -18,7 +18,7 @@ namespace Resturant.Controllers
             _smsapiRepository = smsapiRepository;
         }
 
-        // GET api/SmsApi
+        // GET SmsApi
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -27,7 +27,7 @@ namespace Resturant.Controllers
             return Ok(smsapi);
         }
 
-        // GET api/SmsApi
+        // GET SmsApi
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -42,7 +42,7 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/SmsApi
+        // POST SmsApi
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] SmsApi value)
         {
@@ -50,10 +50,10 @@ namespace Resturant.Controllers
 
             await _smsapiRepository.InsertAsync(value);
 
-            return Created($"smsapi/{value.SmsApiId}", value);
+            return Created($"sms{value.SmsApiId}", value);
         }
 
-        // PUT api/SmsApi
+        // PUT SmsApi
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromBody] SmsApi value, [FromRoute] int id)
         {
@@ -66,7 +66,7 @@ namespace Resturant.Controllers
             return Ok(value);
         }
 
-        // DELETE api/SmsApi
+        // DELETE SmsApi
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

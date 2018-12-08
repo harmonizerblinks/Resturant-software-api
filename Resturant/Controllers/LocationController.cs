@@ -18,16 +18,16 @@ namespace Resturant.Controllers
             _locationRepository = locationRepository;
         }
 
-        // GET api/Location
+        // GET Location
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var location = _locationRepository.Query();
+            var location = _locationRepository.GetAll();
 
             return Ok(location);
         }
 
-        // GET api/Location
+        // GET Location
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -42,7 +42,7 @@ namespace Resturant.Controllers
                 return BadRequest();
         }
 
-        // POST api/Location
+        // POST Location
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Location value)
         {
@@ -53,7 +53,7 @@ namespace Resturant.Controllers
             return Created($"location/{value.LocationId}", value);
         }
 
-        // PUT api/Location
+        // PUT Location
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromBody] Location value, [FromRoute] int id)
         {
@@ -66,7 +66,7 @@ namespace Resturant.Controllers
             return Ok(value);
         }
 
-        // DELETE api/Location
+        // DELETE Location
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

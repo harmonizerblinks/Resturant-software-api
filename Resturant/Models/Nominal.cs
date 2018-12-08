@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,5 +21,10 @@ namespace Resturant.Models
         public string Description { get; set; }
         [Required]
         public string Status { get; set; }
+
+        [NotMapped]
+        public decimal Balance { get; set; }
+
+        public IList<Transaction> Transactions { get; set; }
     }
 }
