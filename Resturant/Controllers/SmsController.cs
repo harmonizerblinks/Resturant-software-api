@@ -58,7 +58,7 @@ namespace Resturant.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var config = _smsapiRepository.Query().LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
-            var sms = _smsRepository.GetAsync(id).Result;
+            var sms = await _smsRepository.GetAsync(id);
             var httpClient = new HttpClient();
             StringBuilder sb = new StringBuilder();
             sb.Append(config.Url).Append("?&username=").Append(config.Username)
@@ -107,6 +107,42 @@ namespace Resturant.Controllers
             return null;
             }
          return Created($"sms/{sms.SmsId}", sms);
+        }
+
+        // Post Sms/Confirm
+        [HttpPost("Confirm")]
+        public async Task<IActionResult> PostConfirm([FromBody] Order value)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var config = _smsapiRepository.Query().LastOrDefault(a => a.Status.ToLower().Contains("active") && a.Default == true);
+            var sms = new Sms();
+            sms.UserId = value.UserId; sms.Date = DateTime.UtcNow; sms.Mobile = value.Mobile;
+            sms.Message = $"Hello {value.FullName}, your Order {value.OrderNo} with Amount: {value.Total} Has been Collected. Thank You for Eating with us.";
+
+            try
+            {
+                var httpClient = new HttpClient();
+                StringBuilder sb = new StringBuilder();
+                sb.Append(config.Url).Append("?&username=").Append(config.Username)
+                    .Append("&password=").Append(config.Password).Append("&source=").Append(config.SenderId)
+                    .Append("&destination=").Append(sms.Mobile).Append("&message=").Append(sms.Message);
+                var json = await httpClient.GetStringAsync(sb.ToString());
+                var smsresponse = JsonConvert.DeserializeObject<SmsResponse>(json);
+                sms.Code = smsresponse.Code; sms.Response = smsresponse.Message;
+                sms.MDate = DateTime.UtcNow;
+
+                await _smsRepository.InsertAsync(sms);
+            }
+            catch (Exception e)
+            {
+                sms.Code = 400; sms.Response = "Unable to send sms";
+                await _smsRepository.InsertAsync(sms);
+                BackgroundJob.Schedule(() => RetrybyId(sms.SmsId), TimeSpan.FromMinutes(3));
+
+                return null;
+            }
+            return Created($"sms/{sms.SmsId}", sms);
         }
 
         // PUT Sms

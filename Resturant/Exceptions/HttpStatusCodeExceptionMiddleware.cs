@@ -22,6 +22,12 @@ namespace Resturant.Exceptions
             try
             {
                 await _next(context);
+                if (context.User.Identity.IsAuthenticated)
+                {
+                    var response = context.User.Claims;
+                    Console.WriteLine(response);
+
+                }
             }
             catch (HttpStatusCodeException ex)
             {

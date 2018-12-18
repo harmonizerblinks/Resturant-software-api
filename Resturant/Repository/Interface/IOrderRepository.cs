@@ -1,6 +1,7 @@
 ﻿using Resturant.Models;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Resturant.Repository
 {
@@ -9,5 +10,7 @@ namespace Resturant.Repository
         IQueryable<Order> GetAll();
 
         IQueryable<Order> GetTodayOrders(DateTime date);
+
+        Task<Dashboard> GetDashboard();
     }
 }

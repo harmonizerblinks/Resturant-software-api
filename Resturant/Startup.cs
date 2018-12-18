@@ -61,30 +61,7 @@ namespace Resturant
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddTransient<IActivityRepository, ActivityRepository>();
-            services.AddTransient<ICompanyRepository, CompanyRepository>();
-            services.AddTransient<IDiscountRepository, DiscountRepository>();
-            services.AddTransient<IEmployeeRepository, EmployeeRepository>();
-            services.AddTransient<IFoodRepository, FoodRepository>();
-            services.AddTransient<IItemRepository, ItemRepository>();
-            services.AddTransient<ILocationRepository, LocationRepository>();
-            services.AddTransient<INominalRepository, NominalRepository>();
-            services.AddTransient<IOrderRepository, OrderRepository>();
-            services.AddTransient<IOrderListRepository, OrderListRepository>();
-            services.AddTransient<ISalesRepository, SalesRepository>();
-            services.AddTransient<ISequenceRepository, SequenceRepository>();
-            services.AddTransient<ISmsApiRepository, SmsApiRepository>();
-            services.AddTransient<ISmsRepository, SmsRepository>();
-            services.AddTransient<IStockRepository, StockRepository>();
-            services.AddTransient<IStockLogRepository, StockLogRepository>();
-            services.AddTransient<ITellerRepository, TellerRepository>();
-            services.AddTransient<ITransitRepository, TransitRepository>();
-            services.AddTransient<ITransactionRepository, TransactionRepository>();
-            services.AddTransient<IAppUserRepository, AppUserRepository>();
-            services.AddTransient<IEmailSender, EmailSender>();
-            //services.AddTransient<IMyServices, MyServices>();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
+            
             //Add Identity and Jwt
             services.AddIdentity<AppUser, IdentityRole>(option =>
             {
@@ -104,19 +81,16 @@ namespace Resturant
                 option.User.RequireUniqueEmail = true;
                 option.SignIn.RequireConfirmedEmail = false;
             }).AddEntityFrameworkStores<AppDbContext>()
-              .AddDefaultTokenProviders();
+              /*.AddDefaultUI()*/.AddDefaultTokenProviders();
+            //services.AddIdentityServer().AddAspNetIdentity<AppUser>();
 
             services.AddAuthentication(o =>
             {
                 o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 o.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                //o.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddGoogle(googleOptions =>
-                {
-                    googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
-                    googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-                })
                 .AddJwtBearer(cfg =>
                 {
                     cfg.RequireHttpsMetadata = false;
@@ -125,9 +99,14 @@ namespace Resturant
                     {
                         ValidIssuer = "http://www.acyst.tech",
                         ValidAudience = "http://localhost:53720",
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("qwertyuiopasdfghjklzxcvbnm123456")),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("wertyuiopasdfghjklzxcvbnm123456")),
                     };
-                });
+                })
+            .AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = "662510424697-6na0e00bgn73tf5s9sn0iv89sjjja9k4.apps.googleusercontent.com";
+                googleOptions.ClientSecret = "o3P-Xb6jmpEg6uEQvWukqnWx";
+            });
 
             services.AddDataProtection();
             services.AddCors(options =>
@@ -171,16 +150,39 @@ namespace Resturant
             
             services.AddMvc(o =>
             {
-                //var policy = new AuthorizationPolicyBuilder()
-                //    .RequireAuthenticatedUser()
-                //    .Build();
-                //o.Filters.Add(new AuthorizeFilter(policy));
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                o.Filters.Add(new AuthorizeFilter(policy));
             }).AddJsonOptions(options =>
             {
-                //options.SerializerSettings.ContractResolver = new DefaultContractResolver();
                 options.SerializerSettings.ContractResolver = new LowercaseContractResolver();
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddTransient<IActivityRepository, ActivityRepository>();
+            services.AddTransient<ICompanyRepository, CompanyRepository>();
+            services.AddTransient<IDiscountRepository, DiscountRepository>();
+            services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+            services.AddTransient<IFoodRepository, FoodRepository>();
+            services.AddTransient<IItemRepository, ItemRepository>();
+            services.AddTransient<ILocationRepository, LocationRepository>();
+            services.AddTransient<INominalRepository, NominalRepository>();
+            services.AddTransient<IOrderRepository, OrderRepository>();
+            services.AddTransient<IOrderListRepository, OrderListRepository>();
+            services.AddTransient<ISalesRepository, SalesRepository>();
+            services.AddTransient<ISequenceRepository, SequenceRepository>();
+            services.AddTransient<ISmsApiRepository, SmsApiRepository>();
+            services.AddTransient<ISmsRepository, SmsRepository>();
+            services.AddTransient<IStockRepository, StockRepository>();
+            services.AddTransient<IStockLogRepository, StockLogRepository>();
+            services.AddTransient<ITellerRepository, TellerRepository>();
+            services.AddTransient<ITransitRepository, TransitRepository>();
+            services.AddTransient<ITransactionRepository, TransactionRepository>();
+            services.AddTransient<IAppUserRepository, AppUserRepository>();
+            services.AddTransient<IEmailSender, EmailSender>();
+            //services.AddTransient<IMyServices, MyServices>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
         }
 
@@ -203,14 +205,22 @@ namespace Resturant
             else
             {
                 app.UseHttpStatusCodeExceptionMiddleware();
-                app.UseExceptionHandler();
+                app.UseExceptionHandler("/Error"); 
+                //app.UseExceptionHandler("/Error");
                 //app.UseHsts();
             }
-            
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+            //app.UseHttpStatusCodeExceptionMiddleware();
+            //app.UseExceptionHandler();
+
             //Add our new middleware to the pipeline
             //app.UseMiddleware<LoggingMiddleware>();
-            
+
             app.UseCors("AllowAny");
+            app.UseAuthentication();
             app.UseHangfireServer();
             app.UseHangfireDashboard();
             app.UseDatabaseErrorPage();
@@ -220,7 +230,6 @@ namespace Resturant
                 FileProvider = new PhysicalFileProvider(
                 Path.Combine(Directory.GetCurrentDirectory(), "Files")), RequestPath = "/Files"
             });
-            app.UseAuthentication();
             // app.UseSerilog();
             app.UseStatusCodePages();
             app.UseSignalR(o =>
@@ -233,6 +242,7 @@ namespace Resturant
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Resturant Api");
             });
 
+            //app.UseSession();
             app.UseHttpsRedirection();
             app.UseMvc();
         }

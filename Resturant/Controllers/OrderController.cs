@@ -70,11 +70,11 @@ namespace Resturant.Controllers
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var order = _orderRepository.GetAsync(id);
+            var order = await _orderRepository.GetAsync(id);
 
             if (order != null)
             {
-                return Ok(order.Result);
+                return Ok(order);
             }
             else
                 return BadRequest();
@@ -87,7 +87,9 @@ namespace Resturant.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var order = _orderRepository.GetAll().Where(c => c.OrderNo == code).FirstOrDefault();
 
-            return Ok(order);
+            var list = _orderlistRepository.GetAll().Where(c => c.OrderId == order.OrderId);
+
+            return Ok(new { order, list });
         }
         
         // GET Order/Code/ORD344

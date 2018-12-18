@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.SignalR;
 using Resturant.Models;
 using System.Collections;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Resturant.Controllers
 {
@@ -30,11 +32,12 @@ namespace Resturant.Controllers
 
         // GET Services
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
             var order = _orderRepository.GetAll().Count();
             //var _get = new MyServices();
-            RecurringJob.AddOrUpdate("Updating Order Screen", () => Refresh(), Cron.Hourly);
+            RecurringJob.AddOrUpdate("Updating Order Screen", () => Refresh(), Cron.Minutely);
             //RecurringJob.AddOrUpdate("Boardcast Message", () => _order.Clients.All.SendAsync("Send", "Hello From Hangfire"), Cron.Minutely);
 
             return Ok( new { Status = "Ok", orders = order });
@@ -46,14 +49,29 @@ namespace Resturant.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            List<Order> pending = _orderRepository.GetAll().Where(a => a.Status.ToLower() == "pending" || a.Status.ToLower() == "in-process").ToList();
-            List<Order> ready = _orderRepository.GetAll().Where(a => a.Status.ToLower() == "ready").ToList();
+            var pending = _orderRepository.GetAll().Where(a => a.Status.ToLower() == "pending" || a.Status.ToLower() == "in-process").ToList();
+            var ready = _orderRepository.GetAll().Where(a => a.Status.ToLower() == "ready").ToList();
 
-            await _order.Clients.All.SendAsync("Send", "Hello From Hangfire");
+            //List<Order> pending_response = JsonConvert.DeserializeObject<List<Order>>(pending);
+            //List<Order> ready_response = JsonConvert.DeserializeObject<List<Order>>(ready);
+
             await _order.Clients.All.SendAsync("pending", pending);
             await _order.Clients.All.SendAsync("ready", ready);
-            
+            await _order.Clients.All.SendAsync("Send", "Updating Order Screen");
+
             return Ok(new { pending, ready });
+        }
+
+        // GET Sms
+        [HttpGet("Dashboard")]
+        public async Task<IActionResult> Dashboard()
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var dash = _orderRepository.GetDashboard();
+            
+
+            return Ok(dash);
         }
 
         //private void RefreshOrderAsync(string message)

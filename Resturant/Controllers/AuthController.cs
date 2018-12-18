@@ -48,6 +48,7 @@ namespace Resturant.Controllers
         }
 
         [HttpPost()]
+        [AllowAnonymous]
         public async Task<IActionResult> Logins([FromBody] Login model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -68,7 +69,7 @@ namespace Resturant.Controllers
             userClaims.Add(new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName));
             userClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("qwertyuiopasdfghjklzxcvbnm1234567890"));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("wertyuiopasdfghjklzxcvbnm123456"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             
             var com = _companyRepository.Query().LastOrDefault();
@@ -101,7 +102,7 @@ namespace Resturant.Controllers
             await _userManager.UpdateAsync(user);
             var auth = new JwtSecurityTokenHandler().WriteToken(token);
             await _userManager.SetAuthenticationTokenAsync(user, "Server", user.UserName, auth);
-            //var tok = await _userManager.CreateSecurityTokenAsync(user);
+            var tok = await _userManager.CreateSecurityTokenAsync(user);
             
             //await _signInManager.CanSignInAsync(user);
 
@@ -194,14 +195,24 @@ namespace Resturant.Controllers
         [HttpGet()]
         public async Task<ActionResult> Claims()
         {
+            var claims = User.Claims.ToArray();
+            var claim = User.Claims.Select(c => new { c.Subject.Name, Type = c.Subject.Claims.Select(a=>a.Type),
+                        value = c.Subject.Claims.Select(a => a.Value) }).ToArray();
 
-            var response = _context.User.Claims;
-
-            //response = _signInManager.ClaimsFactory();
-
-            return Ok(response);
+            return Ok(new { message = "Active Claims", claim, claims });
         }
 
+        [HttpGet("test")]
+        [AllowAnonymous]
+        public IActionResult Get()
+        {
+            //var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToArray();
+
+            var claims = User.Claims.ToArray();
+            return Ok(new { message = "Active Users", claims });
+        }
+
+        [AllowAnonymous]
         [HttpGet("Logout/{username}")]
         public async Task<IActionResult> Logout([FromRoute]string username)
         {
@@ -211,8 +222,8 @@ namespace Resturant.Controllers
             user.Login = DateTime.UtcNow;
             user.IsLoggedIn = false;
             await _userManager.UpdateAsync(user);
-            //_context.SaveChanges();
-
+            await _userManager.RemoveClaimsAsync(user, User.Claims);
+            
             await _signInManager.SignOutAsync();
 
             return Ok("Logout successfull");
@@ -239,7 +250,8 @@ namespace Resturant.Controllers
                 return Content("Could not change Password");
             }
         }
-        
+
+        [AllowAnonymous]
         [HttpPost("Reset")]
         public async Task<IActionResult> PassWordReset([FromBody] Reset reset)
         {
@@ -280,6 +292,7 @@ namespace Resturant.Controllers
             return Ok(new { Status = "Ok", Message = "Account Reset Successfully", Output = "Check Mail for new Password" });
         }
 
+        [AllowAnonymous]
         [HttpGet("Reset/{email}")]
         public async Task<IActionResult> PassWordReset([FromRoute] string email)
         {
@@ -373,4 +386,5 @@ namespace Resturant.Controllers
         }
 
     }
+
 }
