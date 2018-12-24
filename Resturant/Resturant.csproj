@@ -16,8 +16,6 @@
   <ItemGroup>
     <Compile Remove="Exceptions\LoggingMiddleware.cs" />
     <Compile Remove="Exceptions\RequestLoggingMiddleware.cs" />
-    <Compile Remove="Migrations\20181125162736_initial1.cs" />
-    <Compile Remove="Migrations\20181125162736_initial1.Designer.cs" />
     <Compile Remove="Models\ActivityLog.cs" />
     <Compile Remove="Models\MainNominal.cs" />
   </ItemGroup>

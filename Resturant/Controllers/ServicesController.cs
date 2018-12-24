@@ -31,16 +31,28 @@ namespace Resturant.Controllers
         }
 
         // GET Services
-        [HttpGet]
+        //[HttpGet]
+        //[AllowAnonymous]
+        //public async Task<IActionResult> Get([FromQuery] string hub_challenge)
+        //{
+        //    var order = _orderRepository.GetAll().Count();
+
+        //    //Console.WriteLine(data);
+
+        //    return Ok(hub_challenge);
+        //}
+
+        // GET Services
+        [HttpGet("Start")]
         [AllowAnonymous]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> StartService()
         {
             var order = _orderRepository.GetAll().Count();
             //var _get = new MyServices();
             RecurringJob.AddOrUpdate("Updating Order Screen", () => Refresh(), Cron.Minutely);
             //RecurringJob.AddOrUpdate("Boardcast Message", () => _order.Clients.All.SendAsync("Send", "Hello From Hangfire"), Cron.Minutely);
 
-            return Ok( new { Status = "Ok", orders = order });
+            return Ok(new { Status = "Ok", orders = order });
         }
 
         // GET Sms
@@ -54,6 +66,8 @@ namespace Resturant.Controllers
 
             //List<Order> pending_response = JsonConvert.DeserializeObject<List<Order>>(pending);
             //List<Order> ready_response = JsonConvert.DeserializeObject<List<Order>>(ready);
+            //var pend = JsonConvert.SerializeObject(pending);
+            //var red = JsonConvert.SerializeObject(ready);
 
             await _order.Clients.All.SendAsync("pending", pending);
             await _order.Clients.All.SendAsync("ready", ready);

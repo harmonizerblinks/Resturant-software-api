@@ -44,19 +44,37 @@ namespace Resturant.Models
         
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            //builder.Entity<AppUser>().HasData(
-            //   new AppUser { UserName = "Harmony", PhoneNumber = "0238288675", Email = "harmonizerblinks@gmail.com",
-            //       EmailConfirmed = true, Login = DateTime.UtcNow, LogOut = DateTime.UtcNow, UserType = "Admin",
-            //       MUserId = "807ba6c0-e845-4695-847e-92edca9d66db", MDate = DateTime.UtcNow, IsLoggedIn = false,
-            //       PasswordHash = "AQAAAAEAACcQAAAAEOrzhtqT+9ZuBKNmqNY/4xVf8ruHsdTHMfE8KCVsipUBA9CjcZMVjYRaR0Nzl8jgKQ=="
-            //   });
-            //builder.Entity<AppUser>(i =>
-            //{
-            //    //i.HasKey(u => u.AppUserId);
-            //    i.HasIndex(u => u.AppUserId);
-            //});
-            //builder.Entity<AppUser>().HasKey(u => new { u.Id, u.AppUserId });
-
+            builder.Entity<AppUser>().HasData(
+               new AppUser
+               {
+                   Id = "807ba6c0-e845-4695-847e-92edca9d66db",
+                   UserName = "Harmony",
+                   PhoneNumber = "0238288675",
+                   Email = "harmonizerblinks@gmail.com",
+                   EmailConfirmed = true,
+                   Login = DateTime.UtcNow,
+                   LogOut = DateTime.UtcNow,
+                   UserType = "Admin",
+                   MUserId = "807ba6c0-e845-4695-847e-92edca9d66db",
+                   MDate = DateTime.UtcNow,
+                   IsLoggedIn = false,
+                   PasswordHash = "AQAAAAEAACcQAAAAEOrzhtqT+9ZuBKNmqNY/4xVf8ruHsdTHMfE8KCVsipUBA9CjcZMVjYRaR0Nzl8jgKQ=="
+               }, new AppUser
+               {
+                   Id = "807ba6c0-e845-4695-847e-92edca9d66dc",
+                   UserName = "Acyst",
+                   PhoneNumber = "0238288675",
+                   Email = "info@acyst.tech",
+                   EmailConfirmed = true,
+                   Login = DateTime.UtcNow,
+                   LogOut = DateTime.UtcNow,
+                   UserType = "Admin",
+                   MUserId = "807ba6c0-e845-4695-847e-92edca9d66db",
+                   MDate = DateTime.UtcNow,
+                   IsLoggedIn = false,
+                   PasswordHash = "AQAAAAEAACcQAAAAEOrzhtqT+9ZuBKNmqNY/4xVf8ruHsdTHMfE8KCVsipUBA9CjcZMVjYRaR0Nzl8jgKQ=="
+               });
+            
             base.OnModelCreating(builder);
         }
     }

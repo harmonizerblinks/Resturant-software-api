@@ -70,6 +70,7 @@ namespace Resturant.Migrations
                     MDate = table.Column<DateTime>(nullable: true),
                     EmployeeId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Code = table.Column<string>(nullable: true),
                     FullName = table.Column<string>(nullable: false),
                     Image = table.Column<string>(nullable: false),
                     Mobile = table.Column<string>(nullable: false),
@@ -255,21 +256,21 @@ namespace Resturant.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    AccessFailedCount = table.Column<int>(nullable: false),
-                    EmailConfirmed = table.Column<bool>(nullable: false),
-                    LockoutEnabled = table.Column<bool>(nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(nullable: false),
                     Id = table.Column<string>(nullable: false),
                     UserName = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(nullable: false),
                     PasswordHash = table.Column<string>(nullable: true),
                     SecurityStamp = table.Column<string>(nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
+                    LockoutEnabled = table.Column<bool>(nullable: false),
+                    AccessFailedCount = table.Column<int>(nullable: false),
                     EmployeeId = table.Column<int>(nullable: true),
                     UserType = table.Column<string>(nullable: true),
                     IsLoggedIn = table.Column<bool>(nullable: false),
@@ -302,7 +303,9 @@ namespace Resturant.Migrations
                     ItemId = table.Column<int>(nullable: false),
                     Price = table.Column<decimal>(nullable: false),
                     Amount = table.Column<decimal>(nullable: false),
-                    Quantity = table.Column<int>(nullable: false)
+                    Type = table.Column<string>(nullable: true),
+                    Quantity = table.Column<int>(nullable: false),
+                    Reference = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -326,7 +329,7 @@ namespace Resturant.Migrations
                     StockId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ItemId = table.Column<int>(nullable: false),
-                    Quantity = table.Column<string>(nullable: false)
+                    Quantity = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -359,38 +362,6 @@ namespace Resturant.Migrations
                     table.PrimaryKey("PK_Discount", x => x.DiscountId);
                     table.ForeignKey(
                         name: "FK_Discount_Location_LocationId",
-                        column: x => x.LocationId,
-                        principalTable: "Location",
-                        principalColumn: "LocationId",
-                        onDelete: ReferentialAction.NoAction);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Order",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(nullable: true),
-                    Date = table.Column<DateTime>(nullable: false),
-                    MUserId = table.Column<string>(nullable: true),
-                    MDate = table.Column<DateTime>(nullable: true),
-                    OrderId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    OrderNo = table.Column<string>(nullable: true),
-                    FullName = table.Column<string>(nullable: false),
-                    Mobile = table.Column<string>(nullable: false),
-                    Email = table.Column<string>(nullable: true),
-                    LocationId = table.Column<int>(nullable: false),
-                    Price = table.Column<decimal>(nullable: false),
-                    Total = table.Column<decimal>(nullable: false),
-                    Method = table.Column<string>(nullable: false),
-                    Address = table.Column<string>(nullable: true),
-                    Status = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Order", x => x.OrderId);
-                    table.ForeignKey(
-                        name: "FK_Order_Location_LocationId",
                         column: x => x.LocationId,
                         principalTable: "Location",
                         principalColumn: "LocationId",
@@ -546,7 +517,7 @@ namespace Resturant.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     StockId = table.Column<int>(nullable: false),
                     ItemId = table.Column<int>(nullable: false),
-                    Quantity = table.Column<string>(nullable: false),
+                    Quantity = table.Column<int>(nullable: false),
                     UserId = table.Column<string>(nullable: true),
                     Date = table.Column<DateTime>(nullable: false)
                 },
@@ -564,6 +535,83 @@ namespace Resturant.Migrations
                         column: x => x.StockId,
                         principalTable: "Stock",
                         principalColumn: "StockId",
+                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Transaction",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(nullable: true),
+                    Date = table.Column<DateTime>(nullable: false),
+                    MUserId = table.Column<string>(nullable: true),
+                    MDate = table.Column<DateTime>(nullable: true),
+                    TransactionId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    TransCode = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(nullable: false),
+                    Source = table.Column<string>(nullable: false),
+                    Amount = table.Column<decimal>(nullable: false),
+                    Method = table.Column<string>(nullable: false),
+                    NominalId = table.Column<int>(nullable: false),
+                    TellerId = table.Column<int>(nullable: true),
+                    Reference = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Transaction", x => x.TransactionId);
+                    table.ForeignKey(
+                        name: "FK_Transaction_Nominal_NominalId",
+                        column: x => x.NominalId,
+                        principalTable: "Nominal",
+                        principalColumn: "NominalId",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Transaction_Teller_TellerId",
+                        column: x => x.TellerId,
+                        principalTable: "Teller",
+                        principalColumn: "TellerId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Order",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(nullable: true),
+                    Date = table.Column<DateTime>(nullable: false),
+                    MUserId = table.Column<string>(nullable: true),
+                    MDate = table.Column<DateTime>(nullable: true),
+                    OrderId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    OrderNo = table.Column<string>(nullable: true),
+                    FullName = table.Column<string>(nullable: false),
+                    Mobile = table.Column<string>(nullable: false),
+                    Email = table.Column<string>(nullable: true),
+                    LocationId = table.Column<int>(nullable: false),
+                    Price = table.Column<decimal>(nullable: false),
+                    Vat = table.Column<decimal>(nullable: false),
+                    Total = table.Column<decimal>(nullable: false),
+                    Source = table.Column<string>(nullable: true),
+                    Method = table.Column<string>(nullable: false),
+                    Address = table.Column<string>(nullable: true),
+                    Status = table.Column<string>(nullable: false),
+                    TransactionId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Order", x => x.OrderId);
+                    table.ForeignKey(
+                        name: "FK_Order_Location_LocationId",
+                        column: x => x.LocationId,
+                        principalTable: "Location",
+                        principalColumn: "LocationId",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Order_Transaction_TransactionId",
+                        column: x => x.TransactionId,
+                        principalTable: "Transaction",
+                        principalColumn: "TransactionId",
                         onDelete: ReferentialAction.NoAction);
                 });
 
@@ -595,41 +643,15 @@ namespace Resturant.Migrations
                         onDelete: ReferentialAction.NoAction);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "Transaction",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(nullable: true),
-                    Date = table.Column<DateTime>(nullable: false),
-                    MUserId = table.Column<string>(nullable: true),
-                    MDate = table.Column<DateTime>(nullable: true),
-                    TransactionId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    TransCode = table.Column<string>(nullable: true),
-                    Type = table.Column<string>(nullable: false),
-                    Source = table.Column<string>(nullable: false),
-                    Amount = table.Column<string>(nullable: false),
-                    Method = table.Column<string>(nullable: false),
-                    NominalId = table.Column<int>(nullable: false),
-                    TellerId = table.Column<int>(nullable: false),
-                    Reference = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Transaction", x => x.TransactionId);
-                    table.ForeignKey(
-                        name: "FK_Transaction_Nominal_NominalId",
-                        column: x => x.NominalId,
-                        principalTable: "Nominal",
-                        principalColumn: "NominalId",
-                        onDelete: ReferentialAction.NoAction);
-                    table.ForeignKey(
-                        name: "FK_Transaction_Teller_TellerId",
-                        column: x => x.TellerId,
-                        principalTable: "Teller",
-                        principalColumn: "TellerId",
-                        onDelete: ReferentialAction.NoAction);
-                });
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "EmployeeId", "IsLoggedIn", "LockoutEnabled", "LockoutEnd", "LogOut", "Login", "MDate", "MUserId", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName", "UserType" },
+                values: new object[] { "807ba6c0-e845-4695-847e-92edca9d66db", 0, "99e3bd79-ec09-41c6-a94b-b9b0881e7b6f", "harmonizerblinks@gmail.com", true, null, false, false, null, new DateTime(2018, 12, 24, 4, 35, 34, 845, DateTimeKind.Utc), new DateTime(2018, 12, 24, 4, 35, 34, 845, DateTimeKind.Utc), new DateTime(2018, 12, 24, 4, 35, 34, 845, DateTimeKind.Utc), "807ba6c0-e845-4695-847e-92edca9d66db", null, null, "AQAAAAEAACcQAAAAEOrzhtqT+9ZuBKNmqNY/4xVf8ruHsdTHMfE8KCVsipUBA9CjcZMVjYRaR0Nzl8jgKQ==", "0238288675", false, null, false, "Harmony", "Admin" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "EmployeeId", "IsLoggedIn", "LockoutEnabled", "LockoutEnd", "LogOut", "Login", "MDate", "MUserId", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName", "UserType" },
+                values: new object[] { "807ba6c0-e845-4695-847e-92edca9d66dc", 0, "f470e9f0-9aee-4ec0-a391-7ff11b012dc4", "info@acyst.tech", true, null, false, false, null, new DateTime(2018, 12, 24, 4, 35, 34, 845, DateTimeKind.Utc), new DateTime(2018, 12, 24, 4, 35, 34, 845, DateTimeKind.Utc), new DateTime(2018, 12, 24, 4, 35, 34, 845, DateTimeKind.Utc), "807ba6c0-e845-4695-847e-92edca9d66db", null, null, "AQAAAAEAACcQAAAAEOrzhtqT+9ZuBKNmqNY/4xVf8ruHsdTHMfE8KCVsipUBA9CjcZMVjYRaR0Nzl8jgKQ==", "0238288675", false, null, false, "Acyst", "Admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -684,6 +706,11 @@ namespace Resturant.Migrations
                 name: "IX_Order_LocationId",
                 table: "Order",
                 column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Order_TransactionId",
+                table: "Order",
+                column: "TransactionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderList_FoodId",
@@ -786,9 +813,6 @@ namespace Resturant.Migrations
                 name: "StockLog");
 
             migrationBuilder.DropTable(
-                name: "Transaction");
-
-            migrationBuilder.DropTable(
                 name: "Transit");
 
             migrationBuilder.DropTable(
@@ -804,13 +828,16 @@ namespace Resturant.Migrations
                 name: "Stock");
 
             migrationBuilder.DropTable(
-                name: "Teller");
-
-            migrationBuilder.DropTable(
                 name: "Location");
 
             migrationBuilder.DropTable(
+                name: "Transaction");
+
+            migrationBuilder.DropTable(
                 name: "Item");
+
+            migrationBuilder.DropTable(
+                name: "Teller");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

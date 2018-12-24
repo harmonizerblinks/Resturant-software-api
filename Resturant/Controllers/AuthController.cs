@@ -110,23 +110,24 @@ namespace Resturant.Controllers
         }
 
         [HttpPost("User")]
+        [AllowAnonymous]
         public async Task<IActionResult> AddUser([FromBody] AddUser user)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var appemail = _userManager.Users.Any(u => u.Email.Equals(user.Email));
             if (appemail) return BadRequest("Email already taken");
 
-            var emp = _employeeRepository.Query().Where(e => e.EmployeeId.Equals(user.EmployeeId)).FirstOrDefault();
-            if (emp == null) return BadRequest("Select a valid Employee");
+            //var emp = _employeeRepository.Query().Where(e => e.EmployeeId.Equals(user.EmployeeId)).FirstOrDefault();
+            //if (emp == null) return BadRequest("Select a valid Employee");
 
             var app = _userManager.Users.Any(u => u.EmployeeId.Equals(user.EmployeeId));
             if (app) return BadRequest("Employee Already has a Valid Account");
 
             var appUser = new AppUser
             {
-                Email = emp.Email, PhoneNumber = emp.Mobile, UserName = user.Username, MUserId = user.UserId,
+                Email = user.Email, PhoneNumber = user.Mobile, UserName = user.Username, MUserId = user.UserId,
                 Login = DateTime.Now, LogOut = DateTime.Now, IsLoggedIn = false, UserType = user.UserType,
-                EmailConfirmed = true, EmployeeId = user.EmployeeId, MDate = DateTime.UtcNow
+                EmailConfirmed = true, MDate = DateTime.UtcNow
             };
             var result = await _userManager.CreateAsync(appUser, user.Password);
 
@@ -155,6 +156,7 @@ namespace Resturant.Controllers
         }
 
         [HttpGet("identity")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetIndentity()
         {
             var users = _userManager.Users.OrderByDescending(o => o.Login).ToList();
@@ -305,15 +307,15 @@ namespace Resturant.Controllers
             if (appuser.Employee.FullName == null) appuser.Employee.FullName = appuser.UserName;
             try
             {
-                //await _userManager.RemovePasswordAsync(appuser);
-                //await _userManager.AddPasswordAsync(appuser, pin);
-                //string passwordhash = _userManager.PasswordHasher.HashPassword(appuser, pin);
-                //appuser.PasswordHash = passwordhash;
-                //await _userManager.UpdateNormalizedEmailAsync(appuser);
-                //await _userManager.UpdateNormalizedUserNameAsync(appuser);
-                //await _userManager.UpdateSecurityStampAsync(appuser);
-                //await _userManager.UpdateAsync(appuser);
-                //await _context.SaveChangesAsync();
+                await _userManager.RemovePasswordAsync(appuser);
+                await _userManager.AddPasswordAsync(appuser, pin);
+                string passwordhash = _userManager.PasswordHasher.HashPassword(appuser, pin);
+                appuser.PasswordHash = passwordhash;
+                await _userManager.UpdateNormalizedEmailAsync(appuser);
+                await _userManager.UpdateNormalizedUserNameAsync(appuser);
+                await _userManager.UpdateSecurityStampAsync(appuser);
+                await _userManager.UpdateAsync(appuser);
+                // await _context.SaveChangesAsync();
 
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(appuser);
                 var callbackUrl = Url.EmailConfirmationLink(appuser.Id, code, Request.Scheme);

@@ -101,12 +101,11 @@ namespace Resturant
                         ValidAudience = "http://localhost:53720",
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("wertyuiopasdfghjklzxcvbnm123456")),
                     };
-                })
-            .AddGoogle(googleOptions =>
-            {
-                googleOptions.ClientId = "662510424697-6na0e00bgn73tf5s9sn0iv89sjjja9k4.apps.googleusercontent.com";
-                googleOptions.ClientSecret = "o3P-Xb6jmpEg6uEQvWukqnWx";
-            });
+                }).AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = "662510424697-6na0e00bgn73tf5s9sn0iv89sjjja9k4.apps.googleusercontent.com";
+                    googleOptions.ClientSecret = "o3P-Xb6jmpEg6uEQvWukqnWx";
+                });
 
             services.AddDataProtection();
             services.AddCors(options =>

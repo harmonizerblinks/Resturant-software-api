@@ -21,7 +21,7 @@ namespace Resturant.Repository
 
         public IQueryable<Order> GetTodayOrders(DateTime date)
         {
-            return _dbContext.Order.Where(d=>d.Date.Date == date.Date ).Include(f=>f.Orderlist.Where(t=>t.Food))
+            return _dbContext.Order.Where(d=>d.Date.Date == date.Date )
                 .Include(x => x.Orderlist).Include(x => x.Location).AsQueryable();
         }
 
