@@ -16,7 +16,7 @@ namespace Resturant.Repository
         
         public IQueryable<Order> GetAll()
         {
-            return _dbContext.Order.Include(x => x.Orderlist).Include(x => x.Location).AsQueryable();
+            return _dbContext.Order.Include(x => x.Orderlist).Include(x => x.Location).Include(x => x.Transaction).AsQueryable();
         }
 
         public IQueryable<Order> GetTodayOrders(DateTime date)

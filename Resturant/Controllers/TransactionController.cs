@@ -55,12 +55,12 @@ namespace Resturant.Controllers
 
             var to = _nominalRepository.Query().Where(i => i.NominalId == value.NominalId).FirstOrDefault();
             if (to == null) return BadRequest($"Select a Valid Expense Code Nominal Code");
-            value.NominalId = to.NominalId; value.Type = "Credit"; value.Source = "Teller Voucher";
+            value.NominalId = to.NominalId; value.Type = "Debit"; value.Source = "Teller Voucher";
             var tell = new Transaction()
             {
                 TransCode = value.TransCode, Amount = value.Amount,
                 Method = value.Method, Source = "Teller Voucher",
-                Type = "Debit", NominalId = from.NominalId,
+                Type = "Credit", NominalId = from.NominalId,
                 Reference = value.Reference, UserId = value.UserId, Date = value.Date
             };
             await _transactionRepository.InsertAsync(value);

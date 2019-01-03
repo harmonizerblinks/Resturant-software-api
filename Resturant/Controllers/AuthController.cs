@@ -117,17 +117,17 @@ namespace Resturant.Controllers
             var appemail = _userManager.Users.Any(u => u.Email.Equals(user.Email));
             if (appemail) return BadRequest("Email already taken");
 
-            //var emp = _employeeRepository.Query().Where(e => e.EmployeeId.Equals(user.EmployeeId)).FirstOrDefault();
-            //if (emp == null) return BadRequest("Select a valid Employee");
+            var emp = _employeeRepository.Query().Where(e => e.EmployeeId.Equals(user.EmployeeId)).FirstOrDefault();
+            if (emp == null) return BadRequest("Select a valid Employee");
 
             var app = _userManager.Users.Any(u => u.EmployeeId.Equals(user.EmployeeId));
             if (app) return BadRequest("Employee Already has a Valid Account");
 
             var appUser = new AppUser
             {
-                Email = user.Email, PhoneNumber = user.Mobile, UserName = user.Username, MUserId = user.UserId,
+                Email = emp.Email, PhoneNumber = emp.Mobile, UserName = user.Username, MUserId = user.UserId,
                 Login = DateTime.Now, LogOut = DateTime.Now, IsLoggedIn = false, UserType = user.UserType,
-                EmailConfirmed = true, MDate = DateTime.UtcNow
+                EmailConfirmed = true, EmployeeId = user.EmployeeId, MDate = DateTime.UtcNow
             };
             var result = await _userManager.CreateAsync(appUser, user.Password);
 

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Resturant.Models;
@@ -40,6 +41,21 @@ namespace Resturant.Controllers
             }
             else
                 return BadRequest();
+        }
+
+        // GET Discount
+        [HttpGet("User/{mobile}")]
+        public async Task<IActionResult> GetByMobile([FromRoute] string mobile)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var discount = _discountRepository.GetAll().Where(t=>t.Mobile == mobile).Select(d=>d.Location.Discount);
+            int dis = 0;
+            if (discount != null)
+            {
+                return Ok(discount);
+            }
+            else
+                return Ok(dis);
         }
 
         // POST Discount

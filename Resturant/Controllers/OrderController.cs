@@ -20,18 +20,20 @@ namespace Resturant.Controllers
         public IHubContext<OrderHub> _order;
         //private IMyServices _get;
         private IOrderRepository _orderRepository;
+        private ISequenceRepository _sequenceRepository;
         private IOrderListRepository _orderlistRepository;
         private readonly ITellerRepository _tellerRepository;
         private readonly ITransitRepository _transitRepository;
         private readonly ITransactionRepository _transactionRepository;
 
         public OrderController(IOrderRepository orderRepository, IOrderListRepository orderlistRepository,
-            IHubContext<OrderHub> order, /*IMyServices get,*/ ITransitRepository transitRepository,
+            IHubContext<OrderHub> order, ISequenceRepository sequenceRepository, ITransitRepository transitRepository,
             ITransactionRepository transactionRepository, ITellerRepository tellerRepository)
         {
             //_get = get;
             _order = order;
             _orderRepository = orderRepository;
+            _sequenceRepository = sequenceRepository;
             _tellerRepository = tellerRepository;
             _transitRepository = transitRepository;
             _transactionRepository = transactionRepository;
@@ -131,13 +133,34 @@ namespace Resturant.Controllers
         public async Task<IActionResult> CancelOrder([FromRoute] int code)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var order = _orderRepository.GetAll().Where(c => c.OrderId == code).FirstOrDefault();
-            order.Status = "Cancel";
-            await _orderRepository.UpdateAsync(order);
-            //var _get = new MyServices();
-            //await _get.RefreshOrder();
+            var value = _orderRepository.GetAll().Where(c => c.OrderId == code).FirstOrDefault();
+            if (value == null) return BadRequest($"Order id {code} is not valid");
+            var tran = _transactionRepository.Query().Where(i => i.TransactionId == value.TransactionId).FirstOrDefault();
+            if (tran == null) return BadRequest("Transaction For order doesn't exist");
+            var transit = _transitRepository.Query().Where(i => i.Method.ToLower() == value.Method.ToLower()).FirstOrDefault();
+            if (transit == null) return BadRequest("There is no Tansit Nominal for Payment Method");
+            value.Status = "Cancel";
 
-            return Ok(order);
+            var tCode = await _sequenceRepository.GetCode("Transaction");
+            var tell = new Transaction()
+            {
+                TransCode = tCode, Amount = value.Total, Method = value.Method,
+                Source = "Cancel", Type = "Credit", NominalId = tran.NominalId, TellerId = tran.TellerId,
+                Reference = $"Cancel {tran.Reference}", UserId = value.UserId, Date = value.Date
+            };
+
+            var trans = new Transaction()
+            {
+                TransCode = tCode, Amount = value.Total, Method = value.Method,
+                Source = "Cancel", Type = "Debit", NominalId = transit.NominalId, TellerId = tran.TellerId,
+                Reference = $"Cancel {tran.Reference}", UserId = value.UserId, Date = value.Date
+            };
+
+            await _transactionRepository.InsertAsync(tell);
+            await _transactionRepository.InsertAsync(trans);
+
+            await _orderRepository.UpdateAsync(value);
+            return Ok(value);
         }
 
         // GET Order/confirm/5
@@ -202,11 +225,11 @@ namespace Resturant.Controllers
 
             //value.OrderNo = await _get.GetCode("Order");
             var tell = new Transaction() { TransCode = value.OrderNo, Amount = value.Total, Method = value.Method,
-                Source = "Order", Type = "Credit", NominalId = teller.NominalId, TellerId = teller.TellerId,
+                Source = "Order", Type = "Debit", NominalId = teller.NominalId, TellerId = teller.TellerId,
                 Reference = $"Payment For Order {value.OrderNo}", UserId = value.UserId, Date = value.Date };
 
             var trans = new Transaction() { TransCode = value.OrderNo, Amount = value.Total, Method = value.Method,
-                Source = "Order", Type = "Debit", NominalId = transit.NominalId, TellerId = teller.TellerId,
+                Source = "Order", Type = "Credit", NominalId = transit.NominalId, TellerId = teller.TellerId,
                 Reference = $"Payment For Order {value.OrderNo}", UserId = value.UserId, Date = value.Date };
 
             await _transactionRepository.InsertAsync(tell);

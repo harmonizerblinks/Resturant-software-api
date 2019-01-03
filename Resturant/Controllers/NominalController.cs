@@ -118,13 +118,13 @@ namespace Resturant.Controllers
 
             var to = _nominalRepository.Query().Where(i => i.NominalId == value.NominalId).FirstOrDefault();
             if (to == null) return BadRequest($"There is no valid Nominal with Id {value.NominalId}");
-            value.NominalId = to.NominalId; value.Type = "Credit"; value.Source = "Financial Transfer";
+            value.NominalId = to.NominalId; value.Type = "Debit"; value.Source = "Financial Transfer";
             value.TellerId = null;
            var tell = new Transaction()
             {
                 TransCode = value.TransCode, Amount = value.Amount,
                 Method = value.Method, Source = "Financial Transfer",
-                Type = "Debit", NominalId = from.NominalId,
+                Type = "Credit", NominalId = from.NominalId,
                 TellerId = from.TellerId, Reference = value.Reference,
                 UserId = value.UserId, Date = value.Date
             };
@@ -144,14 +144,14 @@ namespace Resturant.Controllers
 
             var to = _nominalRepository.Query().Where(i => i.NominalId == value.NominalId).FirstOrDefault();
             if (to == null) return BadRequest($"There is no Nominal with Id {value.NominalId}");
-            value.NominalId = to.NominalId; value.Type = "Credit"; value.Source = "Teller Voucher";
+            value.NominalId = to.NominalId; value.Type = "Debit"; value.Source = "Teller Voucher";
             var tell = new Transaction()
             {
                 TransCode = value.TransCode,
                 Amount = value.Amount,
                 Method = value.Method,
                 Source = "Teller Voucher",
-                Type = "Debit",
+                Type = "Credit",
                 NominalId = from.NominalId,
                 TellerId = from.TellerId,
                 Reference = value.Reference,
