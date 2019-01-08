@@ -48,14 +48,14 @@ namespace Resturant.Controllers
         public async Task<IActionResult> GetByMobile([FromRoute] string mobile)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var discount = _discountRepository.GetAll().Where(t=>t.Mobile == mobile).Select(d=>d.Location.Discount);
+            var discount = _discountRepository.GetAll().Where(t=>t.Mobile == mobile).Select(d=>d.Location.Discount).LastOrDefault();
             int dis = 0;
-            if (discount != null)
+            if (discount > 0)
             {
                 return Ok(discount);
             }
             else
-                return Ok(dis);
+                return BadRequest(dis);
         }
 
         // POST Discount

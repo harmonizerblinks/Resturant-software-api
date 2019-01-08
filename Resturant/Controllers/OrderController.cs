@@ -117,14 +117,24 @@ namespace Resturant.Controllers
             if (sum == null) return BadRequest("You Are not A Valid Teller");
             var cash = new
             {
-                Opening = _transactionRepository.Query().Where(c => c.Type == "Credit" && c.NominalId == sum.NominalId && c.TellerId == sum.TellerId && c.Date < now).Select(a => a.Amount).Sum()
-                                    - _transactionRepository.Query().Where(c => c.Type == "Debit" && c.NominalId == sum.NominalId && c.TellerId == sum.TellerId && c.Date.Date < now).Select(a => a.Amount).Sum(),
-                Credit = _transactionRepository.Query().Where(c => c.Type == "Credit" && c.NominalId == sum.NominalId && c.TellerId == sum.TellerId && c.Date.Date == now).Select(a => a.Amount).Sum(),
-                Debit = _transactionRepository.Query().Where(c => c.Type == "Debit" && c.NominalId == sum.NominalId && c.TellerId == sum.TellerId && c.Date.Date == now).Select(a => a.Amount).Sum(),
-                Balance = _transactionRepository.Query().Where(c => c.Type == "Credit" && c.NominalId == sum.NominalId && c.TellerId == sum.TellerId && c.Date.Date == now).Select(a => a.Amount).Sum()
-                                    - _transactionRepository.Query().Where(c => c.Type == "Debit" && c.NominalId == sum.NominalId && c.TellerId == sum.TellerId && c.Date.Date == now).Select(a => a.Amount).Sum()
+                Opening = _transactionRepository.Query().Where(c => c.Type == "Credit" && c.NominalId == sum.NominalId 
+                            && c.TellerId == sum.TellerId && c.Date < now).Select(a => a.Amount).Sum()
+                                    - _transactionRepository.Query().Where(c => c.Type == "Debit" && c.NominalId == sum.NominalId 
+                                    && c.TellerId == sum.TellerId && c.Date.Date < now).Select(a => a.Amount).Sum(),
+                Credit = _transactionRepository.Query().Where(c => c.Type == "Credit" && c.NominalId == sum.NominalId 
+                            && c.TellerId == sum.TellerId && c.Date.Date == now).Select(a => a.Amount).Sum(),
+                Debit = _transactionRepository.Query().Where(c => c.Type == "Debit" && c.NominalId == sum.NominalId 
+                        && c.TellerId == sum.TellerId && c.Date.Date == now).Select(a => a.Amount).Sum(),
+                Balance = (_transactionRepository.Query().Where(c => c.Type == "Credit" && c.NominalId == sum.NominalId 
+                            && c.TellerId == sum.TellerId && c.Date.Date == now).Select(a => a.Amount).Sum()
+                             - _transactionRepository.Query().Where(c => c.Type == "Debit" && c.NominalId == sum.NominalId 
+                            && c.TellerId == sum.TellerId && c.Date.Date == now).Select(a => a.Amount).Sum()) 
+                            + (_transactionRepository.Query().Where(c => c.Type == "Credit" && c.NominalId == sum.NominalId
+                            && c.TellerId == sum.TellerId && c.Date < now).Select(a => a.Amount).Sum()
+                                    - _transactionRepository.Query().Where(c => c.Type == "Debit" && c.NominalId == sum.NominalId
+                                    && c.TellerId == sum.TellerId && c.Date.Date < now).Select(a => a.Amount).Sum())
             };
-
+            
             return Ok(new { order, cash });
         }
 
@@ -169,7 +179,7 @@ namespace Resturant.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var order = _orderRepository.GetAll().Where(c => c.OrderId == code).FirstOrDefault();
-            order.Status = "In-Process";
+            order.Status = "In-Progress";
             await _orderRepository.UpdateAsync(order);
             //await _get.RefreshOrder();
 

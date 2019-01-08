@@ -40,22 +40,34 @@ namespace Resturant.Controllers
                     a.Type.ToLower().Contains("debit") && a.Date < model.End).Select(a => a.Amount).Sum();
                 var credit = _transactionRepository.Query().Where(a =>a.NominalId == trans[i].NominalId && a.Date.Date >= model.Start.Date &&
                     a.Type.ToLower().Contains("credit") && a.Date < model.End).Select(a => a.Amount).Sum();
+                var d = ((_transactionRepository.Query().Where(a =>
+                                         a.NominalId == trans[i].NominalId && a.Type.ToLower().Contains("debit") &&
+                                         a.Date.Date < model.Start.Date).Select(a => a.Amount)).Sum());
+                var c = ((_transactionRepository.Query().Where(a =>
+                                         a.NominalId == trans[i].NominalId && a.Type.ToLower().Contains("credit") &&
+                                         a.Date.Date < model.Start.Date).Select(a => a.Amount)).Sum());
                 var openingbal = _transactionRepository.Query().Where(a =>
                                          a.NominalId == trans[i].NominalId && a.Type.ToLower().Contains("dedit") &&
                                          a.Date < model.Start).Select(a => a.Amount).Sum()
                                  - _transactionRepository.Query().Where(a =>
                                          a.NominalId == trans[i].NominalId && a.Type.ToLower().Contains("credit") &&
                                          a.Date < model.Start).Select(a => a.Amount).Sum();
+
+                var o = ((d > c) ? (d - c) + " Dr" : (c - d) + " Cr");
+                if (d == c) o = "0.00";
+
                 trialbalance.Add(
                     new TrialModel
                     {
                         Code = trans[i].Code,
                         BalanceType = trans[i].BalanceType,
                         Name = trans[i].Description,
-                        OpeningBalance = (openingbal == 0 ? openingbal + "" : (openingbal < 0 ? openingbal * (-1) + "" : openingbal + "")),
+                        OpeningBalance = o,
+                        //OpeningBalance = (openingbal == 0 ? openingbal + "" : (openingbal < 0 ? openingbal * (-1) + "" : openingbal + "")),
                         Debits = String.Format("{0:0.00}", debit),
                         Credits = String.Format("{0:0.00}", credit),
-                        ClosingBalance = ((debit > credit) ? (debit - credit) + " Dr" : (credit - debit) + " Cr")
+                        ClosingBalance = ((debit > (credit - openingbal)) ? (debit - (credit - openingbal)) + " Dr" : ((credit - openingbal) - debit) + " Cr")
+                        //ClosingBalance = ((debit > (credit + openingbal)) ? (debit - credit) + " Dr" : (credit - debit) + " Cr")
                     });
 
             }
@@ -211,7 +223,101 @@ namespace Resturant.Controllers
             return Ok(new { cash, trans });
         }
 
-        public class ReportModel
+        [HttpGet("Enquirys")]
+        public IActionResult GenerateNominal([FromRoute] int id)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var codes = new List<Codes>();
+            var main = _nominalRepository.Query().Select(t=>t.GLType).Distinct().ToList();
+
+            for (int g = 0; g < main.Count; g++)
+            {
+                var nom = _nominalRepository.Query().Where(a=>a.GLType.ToLower() == main[g].ToLower()).ToList();
+
+                codes.Add(new Codes { Name = main[g], Nominal = nom });
+            }
+            return Ok(codes);
+        }
+
+        [HttpPost("Income")]
+        public IActionResult Generate([FromBody] Report model)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var income = new List<Income>();
+            var main = _nominalRepository.Query().Where(u => u.Code.ToLower() == "income" || u.Code.ToLower() == "expense")
+                        .Select(g=>g.GLType).Distinct().ToList();
+            //var nominalCodes = (_context.GeneralLedgerCodes.Where(a => a.BranchId == model.Id && a.CurrencyId == curr.CurrencyId)
+            //    .Select(a => a.GeneralLedgerCodeId)).Distinct().ToList();
+            decimal tdb = 0; decimal tcd = 0; decimal topd = 0; decimal topc = 0;
+
+            for (int g = 0; g < main.Count; g++)
+            {
+                var trial = new List<TrialModel>();
+                decimal db = 0; decimal cd = 0; decimal opd = 0; decimal opc = 0;
+
+                var nom = (_nominalRepository.Query().Where(a=>a.GLType == main[g])
+                                    .Select(a => a.NominalId)).ToList();
+
+                for (int i = 0; i < nom.Count; i++)
+                {
+                    var debit = (_transactionRepository.Query().Where(a =>
+                        a.NominalId == nom[i] && a.Date.Date >= model.From.Date &&
+                        a.Type.ToLower().Contains("debit") && a.Date.Date <= model.To.Date).Select(a => a.Amount)).Sum();
+                    var credit = (_transactionRepository.Query().Where(a =>
+                        a.NominalId == nom[i] && a.Date.Date >= model.From &&
+                        a.Type.ToLower().Contains("credit") && a.Date.Date <= model.To.Date).Select(a => a.Amount)).Sum();
+                    var d = ((_transactionRepository.Query().Where(a =>
+                                             a.NominalId == nom[i] && a.Type.ToLower().Contains("debit") &&
+                                             a.Date.Date < model.From.Date).Select(a => a.Amount)).Sum());
+                    var c = ((_transactionRepository.Query().Where(a =>
+                                             a.NominalId == nom[i] && a.Type.ToLower().Contains("credit") &&
+                                             a.Date.Date < model.From.Date).Select(a => a.Amount)).Sum());
+                    var openingbal = ((_transactionRepository.Query().Where(a =>
+                                             a.NominalId == nom[i] && a.Type.ToLower().Contains("debit") &&
+                                             a.Date.Date < model.From.Date).Select(a => a.Amount)).Sum())
+                                     - ((_transactionRepository.Query().Where(a =>
+                                             a.NominalId == nom[i] && a.Type.ToLower().Contains("credit") &&
+                                             a.Date.Date < model.To.Date).Select(a => a.Amount)).Sum());
+
+                    db += debit; cd += credit;
+                    opd += d; opc += c;
+                    var o = ((d > c) ? (d - c) + " Dr" : (c - d) + " Cr");
+                    if (d == c) o = "0.00";
+
+                    trial.Add(
+                        new TrialModel
+                        {
+                            OpeningBalance = o,
+                            // OpeningBalance = (openingbal == 0 ? openingbal + "" : (openingbal < 0 ? openingbal * (-1) + "" : openingbal + "")),
+                            Debits = String.Format("{0:0.00}", debit),
+                            Credits = String.Format("{0:0.00}", credit),
+                            Name = ((_nominalRepository.Query().Where(a => a.NominalId == nom[i])
+                                .Select(a => a.Code + " - " + a.Description)).FirstOrDefault()),
+                            ClosingBalance = ((debit > (credit - openingbal)) ? (debit - (credit - openingbal)) + " Dr" : ((credit - openingbal) - debit) + " Cr")
+                        });
+
+                }
+                //var t = ((opd > opc) ? (opd - opc) + " Dr" : (opd - opc) + " Cr");
+                //if (opd == opc) t = "0.00";
+                var total = new Total()
+                {
+                    Description = "Total",
+                    Opening = ((opd > opc) ? (opd - opc) + " Dr" : (opd - opc) + " Cr"),
+                    Debit = String.Format("{0:0.00}", db),
+                    Credit = String.Format("{0:0.00}", cd),
+                    Closing = ((db > cd) ? (db - cd) + " Dr" : (cd - db) + " Cr")
+                };
+
+                income.Add(new Income { Name = main[g], Trans = trial, Sum = total });
+
+            }
+            var profit = new Total() { };
+            return Ok(income);
+        }
+ 
+        public class Report
         {
             [Required]
             public DateTime From { get; set; }
@@ -268,6 +374,28 @@ namespace Resturant.Controllers
             public string Debits { get; set; }
             public string Credits { get; set; }
             public string ClosingBalance { get; set; }
+        }
+
+        public class Total
+        {
+            public string Description { get; set; }
+            public string Opening { get; set; }
+            public string Debit { get; set; }
+            public string Credit { get; set; }
+            public string Closing { get; set; }
+        }
+
+        public class Income
+        {
+            public string Name { get; set; }
+            public List<TrialModel> Trans { get; set; }
+            public Total Sum { get; set; }
+        }
+
+        public class Codes
+        {
+            public string Name { get; set; }
+            public List<Nominal> Nominal { get; set; }
         }
     }
 }
