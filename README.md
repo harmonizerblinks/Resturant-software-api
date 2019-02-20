@@ -2,6 +2,13 @@
 Developing a software to manage the activities carried out in a restaurant, especially the cash flow 
 
 
+# API 
+http://soft.acyst.tech/swagger
+
+# FrontEnd
+https://resturant-393f4.firebaseapp.com 
+
+
 [![GitHub issues](https://img.shields.io/github/issues/harmonizerblinks/Resturant-software-api.svg?logo=appveyor&longCache=true)](https://github.com/harmonizerblinks/Resturant-software-api/issues)
 [![GitHub stars](https://img.shields.io/github/stars/harmonizerblinks/Resturant-software-api.svg?logo=appveyor&longCache=true)](https://github.com/harmonizerblinks/Resturant-software-api/stargazers)
 [![GitHub stars](https://img.shields.io/github/stars/harmonizerblinks/Resturant-software-api.svg?logo=appveyor&longCache=true)](https://github.com/harmonizerblinks/Resturant-software-api/stargazers)
@@ -9,7 +16,3 @@ Developing a software to manage the activities carried out in a restaurant, espe
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/harmonizerblinks/Resturant-software-api.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fharmonizerblinks%2FResturant-software-api)
 
 
-#API 
-http://soft.acyst.tech/swagger  
-#FrontEnd
-https://resturant-393f4.firebaseapp.com 
