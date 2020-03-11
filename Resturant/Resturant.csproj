@@ -37,7 +37,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.1.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
-    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.1.2" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.1.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
   </ItemGroup>
 
